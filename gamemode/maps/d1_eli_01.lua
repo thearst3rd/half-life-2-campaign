@@ -1,18 +1,71 @@
 NEXT_MAP = "d1_eli_02"
 
 TRIGGER_CHECKPOINT = {
-	{Vector(-174, 2777, -1280), Vector(29, 2818, -1119)},
-	{Vector(214, 2040, -1277), Vector(254, 2124, -1171)},
-	{Vector(371, 1760, -2736), Vector(533, 1801, -2615)},
-	{Vector(154, 2042, -2735), Vector(191, 2211, -2629)},
-	{Vector(-574, 2049, -2736), Vector(-536, 2217, -2629)},
-	{Vector(-692, 1053, -2688), Vector(-490, 1093, -2527)}	
+	{ Vector( 364, 1764, -2730 ), Vector( 549, 1787, -2575 ) }
 }
 
-TRIGGER_DELAYMAPLOAD = {Vector(-703, 989, -2688), Vector(-501, 1029, -2527)}
+TRIGGER_DELAYMAPLOAD = { Vector( -703, 989, -2688 ), Vector( -501, 1029, -2527 ) }
 
-hook.Add("PlayerInitialSpawn", "hl2cPlayerInitialSpawn", function(pl)
-	for _, ent in pairs(ents.FindByClass("prop_vehicle_airboat")) do
-		ent:Remove()
+
+-- Player spawns
+function HL2C_PlayerSpawn( ply )
+
+	ply:Give( "weapon_crowbar" )
+	ply:Give( "weapon_pistol" )
+	ply:Give( "weapon_smg1" )
+	ply:Give( "weapon_357" )
+	ply:Give( "weapon_frag" )
+
+end
+hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+
+
+-- Initialize entities
+function HL2C_InitPostEntity()
+
+	ents.FindByName( "global_newgame_template_ammo" )[ 1 ]:Remove()
+	ents.FindByName( "global_newgame_template_base_items" )[ 1 ]:Remove()
+	ents.FindByName( "global_newgame_template_local_items" )[ 1 ]:Remove()
+	if ( !game.SinglePlayer() ) then
+	
+		ents.FindByName( "pclip_airlock_1_a" )[ 1 ]:Remove()
+		ents.FindByName( "brush_exit_door_raven_PClip" )[ 1 ]:Remove()
+		ents.FindByName( "pclip_exit_door_raven2" )[ 1 ]:Remove()
+		ents.FindByName( "pclip_airlock_2_a" )[ 1 ]:Remove()
+	
 	end
-end)
+
+end
+hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+
+
+-- Accept input
+function HL2C_AcceptInput( ent, input )
+
+	if ( !game.SinglePlayer() && ( ( ent:GetName() == "inner_door" ) || ( ent:GetName() == "lab_exit_door_raven" ) || ( ent:GetName() == "lab_exit_door_raven2" ) || ( ent:GetName() == "airlock_south_door" ) || ( ent:GetName() == "airlock_south_doorb" ) ) && ( string.lower( input ) == "close" ) ) then
+	
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "airlock_door" ) && ( string.lower( input ) == "open" ) ) then
+	
+		ents.FindByName( "doors_Airlock_Outside" )[ 1 ]:Fire( "Unlock" )
+		ents.FindByName( "doors_Airlock_Outside" )[ 1 ]:Fire( "Open" )
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "lcs_mosstour05" ) && ( string.lower( input ) == "start" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetVelocity( Vector( 0, 0, 0 ) )
+			ply:SetPos( Vector( 457, 1656, -1267 ) )
+			ply:SetEyeAngles( Angle( 0, 90, 0 ) )
+		
+		end
+	
+	end
+
+end
+hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )

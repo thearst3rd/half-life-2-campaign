@@ -1,23 +1,236 @@
-INFO_PLAYER_SPAWN = {Vector(-2489, -1292, 580), 90}
+INFO_PLAYER_SPAWN = { Vector( -2489, -1292, 580 ), 90 }
 
 NEXT_MAP_PERCENT = 1
-
-NEXT_MAP_TIME = 45
 
 RESET_WEAPONS = true
 
 SUPER_GRAVITY_GUN = true
 
-TRIGGER_CHECKPOINT = {
-	{Vector(-2379, 390, 576), Vector(-2237, 531, 697)},
-	{Vector(-1890, -58, 1344), Vector(-1849, 63, 1465)},
-	{Vector(-820, -115, -256), Vector(-780, 111, -95)}
-}
+TRIGGER_DELAYMAPLOAD = { Vector( 14095, 15311, 14964 ), Vector( 13702, 14514, 15000 ) }
 
-TRIGGER_DELAYMAPLOAD = {Vector(14095, 15311, 14964), Vector(13702, 14514, 15000)}
+if ( tobool( PLAY_EPISODE_1 ) ) then
 
-if PLAY_EPISODE_1 == 1 then
 	NEXT_MAP = "ep1_citadel_00"
+
 else
+
 	NEXT_MAP = "d1_trainstation_01"
+
+end
+
+BREEN_VEHICLE_VIEWCONTROL = true
+
+
+-- Player spawns
+function HL2C_PlayerSpawn( ply )
+
+	if ( !game.SinglePlayer() && BREEN_VEHICLE_VIEWCONTROL ) then
+	
+		ents.FindByName( "pod_viewcontrol" )[ 1 ]:Fire( "Enable" )
+		ply:Spectate( OBS_MODE_ROAMING )
+		ply:SetViewEntity( ents.FindByName( "pod_viewcontrol" )[ 1 ] )
+		ply:Freeze( true )
+	
+	end
+
+	if ( game.SinglePlayer() && IsValid( ents.FindByName( "pod" )[ 1 ] ) ) then
+	
+		ply:EnterVehicle( ents.FindByName( "pod" )[ 1 ] )
+	
+	end
+
+end
+hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+
+
+-- Initialize entities
+function HL2C_InitPostEntity()
+
+	game.ConsoleCommand( "physcannon_tracelength 850\n" )
+	game.ConsoleCommand( "physcannon_maxmass 850\n" )
+	game.ConsoleCommand( "physcannon_pullforce 8000\n" )
+
+	if ( !game.SinglePlayer() ) then
+	
+		ents.FindByName( "citadel_template_combinewall_start1" )[ 1 ]:Remove()
+	
+		local viewcontrol = ents.Create( "point_viewcontrol" )
+		viewcontrol:SetName( "pod_viewcontrol" )
+		viewcontrol:SetPos( ents.FindByName( "pod" )[ 1 ]:GetPos() )
+		viewcontrol:SetKeyValue( "spawnflags", "12" )
+		viewcontrol:Spawn()
+		viewcontrol:Activate()
+		viewcontrol:SetParent( ents.FindByName( "pod" )[ 1 ] )
+		viewcontrol:Fire( "SetParentAttachment", "vehicle_driver_eyes" )
+	
+	end
+
+end
+hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+
+
+-- Accept input
+function HL2C_AcceptInput( ent, input, activator, caller, value )
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "logic_fade_view" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		BREEN_VEHICLE_VIEWCONTROL = false
+	
+		if ( timer.Exists( "HL2C_UpdatePlayerPosition" ) ) then timer.Destroy( "HL2C_UpdatePlayerPosition" ) end
+	
+		GAMEMODE:CreateSpawnPoint( Vector( -1875, 887, 591 ), 265.5 )
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:UnSpectate()
+			ply:SetViewEntity()
+			ply:Freeze( false )
+		
+			ply:Spawn()
+		
+		end
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "clip_door_BreenElevator" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetVelocity( Vector( 0, 0, 0 ) )
+			ply:SetPos( Vector( -1968, 0, 600 ) )
+			ply:SetEyeAngles( Angle( 0, -90, 0 ) )
+		
+		end
+		GAMEMODE:CreateSpawnPoint( Vector( -1860, 0, 1380 ), 0 )
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "lcs_al_doworst" ) && ( string.lower( input ) == "start" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetVelocity( Vector( 0, 0, 0 ) )
+			ply:SetPos( Vector( -1056, 464, 1340 ) )
+			ply:SetEyeAngles( Angle( 0, -90, 0 ) )
+		
+		end
+		GAMEMODE:CreateSpawnPoint( Vector( -1056, 300, -200 ), -90 )
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "citadel_scene_al_rift1" ) && ( string.lower( input ) == "start" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetVelocity( Vector( 0, 0, 0 ) )
+			ply:SetPos( Vector( -640, -400, 1320 ) )
+			ply:SetEyeAngles( Angle( 0, 35, 0 ) )
+		
+		end
+		GAMEMODE:CreateSpawnPoint( Vector( -640, -400, 1320 ), 35 )
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "relay_portalfinalexplodeshake" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		SUPER_GRAVITY_GUN = false
+	
+		game.ConsoleCommand( "physcannon_tracelength 250\n" )
+		game.ConsoleCommand( "physcannon_maxmass 250\n" )
+		game.ConsoleCommand( "physcannon_pullforce 4000\n" )
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "teleport_player_gman_1" ) && ( string.lower( input ) == "teleport" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetPos( ent:GetPos() )
+		
+		end
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "player_speedmod" ) && ( string.lower( input ) == "modifyspeed" ) ) then
+	
+		for _, ply in pairs( player.GetAll() ) do
+		
+			ply:SetLaggedMovementValue( tonumber( value ) )
+		
+		end
+	
+	end
+
+end
+hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+
+
+-- Every frame or tick
+function HL2C_Think()
+
+	if ( SUPER_GRAVITY_GUN ) then
+	
+		for _, ent in pairs( ents.FindByClass( "ai_weapon_*" ) ) do
+		
+			if ( IsValid( ent ) && ent:IsWeapon() && ( !IsValid( ent:GetOwner() ) ) ) then
+			
+				ent:Remove()
+			
+			end
+		
+		end
+	
+		for _, ent in pairs( ents.FindByClass( "weapon_*" ) ) do
+		
+			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) ) then
+			
+				ent:Remove()
+			
+			end
+		
+		end
+	
+		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
+		
+			if ( IsValid( ent ) && ent:IsWeapon() ) then
+			
+				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ) end
+			
+			end
+		
+		end
+	
+		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
+		
+			if ( IsValid( ply ) && ply:Alive() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetClass() == "weapon_physcannon" ) ) then
+			
+				if ( ply:GetViewModel():GetModel() != "models/weapons/c_superphyscannon.mdl" ) then ply:GetViewModel():SetModel( "models/weapons/c_superphyscannon.mdl" ) end
+			
+			end
+		
+		end
+	
+	end
+
+end
+hook.Add( "Think", "HL2C_Think", HL2C_Think )
+
+
+if ( !game.SinglePlayer() ) then
+
+	-- Update player position to the vehicle
+	function HL2C_UpdatePlayerPosition()
+	
+		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
+		
+			if ( IsValid( ply ) && IsValid( ents.FindByName( "pod_viewcontrol" )[ 1 ] ) && ply:Alive() ) then
+			
+				ply:SetPos( ents.FindByName( "pod_viewcontrol" )[ 1 ]:GetPos() )
+			
+			end
+		
+		end
+	
+	end
+	timer.Create( "HL2C_UpdatePlayerPosition", 0.5, 0, HL2C_UpdatePlayerPosition )
+
 end

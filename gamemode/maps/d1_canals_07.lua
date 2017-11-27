@@ -2,9 +2,22 @@ ALLOWED_VEHICLE = "Airboat"
 
 NEXT_MAP = "d1_canals_08"
 
-hook.Add("PlayerCanPickupWeapon", "hl2cPlayerCanPickupWeapon", function(pl, weapon)
-	if weapon:GetClass() == "weapon_physcannon" then
-		weapon:Remove()
-		return false
-	end
-end)
+
+-- Player spawns
+function HL2C_PlayerSpawn( ply )
+
+	ply:Give( "weapon_crowbar" )
+	ply:Give( "weapon_pistol" )
+	ply:Give( "weapon_smg1" )
+
+end
+hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+
+
+-- Initialize entities
+function HL2C_InitPostEntity()
+
+	ents.FindByName( "global_newgame_template" )[ 1 ]:Remove()
+
+end
+hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )

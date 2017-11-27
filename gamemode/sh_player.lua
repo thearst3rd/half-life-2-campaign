@@ -1,15 +1,26 @@
-// Finds the player meta table or terminates
-local meta = FindMetaTable("Player")
+-- Finds the player meta table or terminates
+local meta = FindMetaTable( "Player" )
 if !meta then return end
 
 
-// Blinds the player by setting view out into the void
+-- Remove the vehicle
 function meta:RemoveVehicle()
-	if CLIENT || !self:IsValid() then 
-		return
-	end
+
+	if ( CLIENT || !self:IsValid() ) then
 	
-	if self.vehicle && self.vehicle:IsValid() then
-		self.vehicle:Remove()
+		return
+	
 	end
+
+	if ( IsValid( self.vehicle ) ) then
+	
+		if ( IsValid( self.vehicle:GetDriver() ) && self.vehicle:GetDriver():IsPlayer() ) then
+		
+			self.vehicle:GetDriver():ExitVehicle()
+		
+		end
+		self.vehicle:Remove()
+	
+	end
+
 end

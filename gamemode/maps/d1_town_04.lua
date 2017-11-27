@@ -1,3 +1,25 @@
-NEXT_MAP = "d2_coast_01"
+NEXT_MAP = "d1_town_05"
 
-TRIGGER_DELAYMAPLOAD = {Vector(-2537, 1025, -4851), Vector(-2496, 1307, -4730)}
+
+-- Player spawns
+function HL2C_PlayerSpawn( ply )
+
+	ply:Give( "weapon_crowbar" )
+	ply:Give( "weapon_pistol" )
+	ply:Give( "weapon_smg1" )
+	ply:Give( "weapon_357" )
+	ply:Give( "weapon_frag" )
+	ply:Give( "weapon_physcannon" )
+	ply:Give( "weapon_shotgun" )
+
+end
+hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+
+
+-- Initialize entities
+function HL2C_InitPostEntity()
+
+	ents.FindByName( "player_spawn_template" )[ 1 ]:Remove()
+
+end
+hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )

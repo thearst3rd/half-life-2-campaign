@@ -1,0 +1,33 @@
+"half-life_2_campaign"
+{
+	"title"			"HALF-LIFE 2: Campaign"
+	"base"			"base"
+	"menusystem"	"1"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"hl2c_admin_physgun"
+			"text"		"[ADMIN] Physics Gun"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+	
+		2
+		{
+			"name"		"hl2c_admin_noclip"
+			"text"		"[ADMIN] No Clip"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+	
+		3
+		{
+			"name"		"hl2c_server_extras"
+			"text"		"[SERVER] Enable Extras"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+	}
+}

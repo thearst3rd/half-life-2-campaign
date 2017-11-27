@@ -1,115 +1,171 @@
-// Start our new vgui element
+-- Start our new vgui element
 local PANEL = {}
-local FRIEND_INDICATOR = surface.GetTextureID("VGUI/ico_friend_indicator_scoreboard")
 
 
-// Apply the scheme of things
+-- Apply the scheme of things
 function PANEL:ApplySchemeSettings()
-	self.nameLabel:SetFont("arial16Bold")
-	
-	self.statusLabel:SetFont("arial16Bold")
-	
-	self.scoreLabel:SetFont("arial16Bold")
-	
-	self.deathsLabel:SetFont("arial16Bold")
-	
-	self.pingLabel:SetFont("arial16Bold")
+
+	self.nameLabel:SetFont( "arial16Bold" )
+
+	self.statusLabel:SetFont( "arial16Bold" )
+
+	self.scoreLabel:SetFont( "arial16Bold" )
+
+	self.deathsLabel:SetFont( "arial16Bold" )
+
+	self.pingLabel:SetFont( "arial16Bold" )
+
 end
 
 
-// Figures out where to place itself
-function PANEL:HigherOrLower(row)
-	if !self.pl:IsValid() || self.pl:Team() == TEAM_CONNECTING then return false end
-	if !row.pl:IsValid() || row.pl:Team() == TEAM_CONNECTING then return true end
+-- Figures out where to place itself
+function PANEL:HigherOrLower( row )
+
+	if ( !self.ply:IsValid() || ( self.ply:Team() == TEAM_CONNECTING ) ) then return false end
+	if ( !row.ply:IsValid() || ( row.ply:Team() == TEAM_CONNECTING ) ) then return true end
+
+	if ( self.ply:Frags() == row.ply:Frags() ) then
 	
-	if self.pl:Frags() == row.pl:Frags() then
-		return self.pl:Deaths() < row.pl:Deaths()
+		return self.ply:Deaths() < row.ply:Deaths()
+	
 	end
 
-	return self.pl:Frags() > row.pl:Frags()
+	return self.ply:Frags() > row.ply:Frags()
+
 end
 
 
-// Called when our vgui element is created
+-- Called when our vgui element is created
 function PANEL:Init()
-	self.pl = 0
-	
-	self.avatarImage = vgui.Create("AvatarImage", self)
-	
-	self.nameLabel = vgui.Create("Label", self)
-	
-	self.statusLabel = vgui.Create("Label", self)
-	
-	self.scoreLabel = vgui.Create("Label", self)
-	
-	self.deathsLabel = vgui.Create("Label", self)
-	
-	self.pingLabel = vgui.Create("Label", self)
-end
 
+	self.ply = 0
 
-// Called every frame
-function PANEL:Paint()
-	if LocalPlayer() == self.pl then
-		surface.SetDrawColor(Color(125, 125, 125, 75))
-		surface.DrawRect(0, 0, self:GetWide(), self:GetTall())
-	end
+	if ( game.MaxPlayers() <= 10 ) then
 	
-	if self.pl:GetFriendStatus() == "friend" then
-		surface.SetTexture(FRIEND_INDICATOR)
-		surface.DrawTexturedRect(0, 0, 64, 64) 
-	end
-end
-
-
-// Does the actual layout
-function PANEL:PerformLayout()
-	self.avatarImage:SetPos(25, 1)
-	self.avatarImage:SetSize(32, 32)
+		self.posY = 9
+		self.avatarX = 25
+		self.avatarY = 1
+		self.avatarSize = 32
 	
-	self.nameLabel:SizeToContents()
-	self.nameLabel:SetPos(58, 9)
-	
-	self.statusLabel:SizeToContents()
-	self.statusLabel:SetPos(self:GetWide() - self.statusLabel:GetWide() - 200, 9)
-	
-	self.scoreLabel:SizeToContents()
-	self.scoreLabel:SetPos(self:GetWide() - self.scoreLabel:GetWide() - 100, 9)
-	
-	self.deathsLabel:SizeToContents()
-	self.deathsLabel:SetPos(self:GetWide() - self.deathsLabel:GetWide() - 50, 9)
-	
-	self.pingLabel:SizeToContents()
-	self.pingLabel:SetPos(self:GetWide() - self.pingLabel:GetWide() - 5, 9)
-end
-
-
-// Sets the player in question
-function PANEL:SetPlayer(pl)
-	self.pl = pl
-	self.avatarImage:SetPlayer(pl)
-end
-
-
-// Updates the scoreboard
-function PANEL:UpdatePlayerRow()
-	self.nameLabel:SetText(self.pl:Name())
-	
-	if self.pl:Team() != TEAM_ALIVE then
-		self.statusLabel:SetText(team.GetName(self.pl:Team()))
 	else
-		self.statusLabel:SetText("")
+	
+		self.posY = 2
+		self.avatarX = 40
+		self.avatarY = 2
+		self.avatarSize = 16
+	
 	end
-	
-	self.scoreLabel:SetText(self.pl:Frags())
-	
-	self.deathsLabel:SetText(self.pl:Deaths())
-	
-	self.pingLabel:SetText(self.pl:Ping())
-	
-	self:InvalidateLayout()
+
+	self.muteIcon = vgui.Create( "DImageButton", self )
+	self.muteIcon.DoClick = function() self.ply:SetMuted( !self.ply:IsMuted() ) end
+
+	self.avatarImage = vgui.Create( "AvatarImage", self )
+
+	self.nameLabel = vgui.Create( "DLabel", self )
+
+	self.statusLabel = vgui.Create( "DLabel", self )
+
+	self.scoreLabel = vgui.Create( "DLabel", self )
+
+	self.deathsLabel = vgui.Create( "DLabel", self )
+
+	self.pingLabel = vgui.Create( "DLabel", self )
+
 end
 
 
-// Register our scoreboard element
-vgui.Register("scoreboard_playerrow", PANEL, "Panel")
+-- Called every frame
+function PANEL:Paint()
+
+	if ( !IsValid( self.ply ) ) then return end
+
+	if ( LocalPlayer() == self.ply ) then
+	
+		surface.SetDrawColor( Color( 125, 125, 125, 75 ) )
+		surface.DrawRect( 0, 0, self:GetWide(), self:GetTall() )
+	
+	end
+
+end
+
+
+-- Does the actual layout
+function PANEL:PerformLayout()
+
+	self.muteIcon:SetPos( 5, self.posY )
+	self.muteIcon:SetSize( 16, 16 )
+
+	self.avatarImage:SetPos( self.avatarX, self.avatarY )
+	self.avatarImage:SetSize( self.avatarSize, self.avatarSize )
+
+	self.nameLabel:SizeToContents()
+	self.nameLabel:SetPos( 58, self.posY )
+
+	self.statusLabel:SizeToContents()
+	self.statusLabel:SetPos( self:GetWide() - self.statusLabel:GetWide() - 200, self.posY )
+
+	self.scoreLabel:SizeToContents()
+	self.scoreLabel:SetPos( self:GetWide() - self.scoreLabel:GetWide() - 100, self.posY )
+
+	self.deathsLabel:SizeToContents()
+	self.deathsLabel:SetPos( self:GetWide() - self.deathsLabel:GetWide() - 50, self.posY )
+
+	self.pingLabel:SizeToContents()
+	self.pingLabel:SetPos( self:GetWide() - self.pingLabel:GetWide() - 5, self.posY )
+
+end
+
+
+-- Sets the player in question
+function PANEL:SetPlayer( ply )
+
+	self.ply = ply
+	self.avatarImage:SetPlayer( ply )
+
+	if ( self.ply == LocalPlayer() ) then
+	
+		self.muteIcon:SetEnabled( false )
+	
+	end
+
+end
+
+
+-- Updates the scoreboard
+function PANEL:UpdatePlayerRow()
+
+	if ( self.ply:IsMuted() ) then
+	
+		self.muteIcon:SetIcon( "icon16/sound_mute.png" )
+	
+	else
+	
+		self.muteIcon:SetIcon( "icon16/sound.png" )
+	
+	end
+
+	self.nameLabel:SetText( self.ply:Name() )
+
+	if ( self.ply:Team() != TEAM_ALIVE ) then
+	
+		self.statusLabel:SetText( team.GetName( self.ply:Team() ) )
+	
+	else
+	
+		self.statusLabel:SetText( "" )
+	
+	end
+
+	self.scoreLabel:SetText( self.ply:Frags() )
+
+	self.deathsLabel:SetText( self.ply:Deaths() )
+
+	self.pingLabel:SetText( self.ply:Ping() )
+
+	self:InvalidateLayout()
+
+end
+
+
+-- Register our scoreboard element
+vgui.Register( "scoreboard_playerrow", PANEL, "DPanel" )
