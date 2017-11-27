@@ -215,7 +215,6 @@ function GM:Initialize()
 	showNav = false
 	scoreboard = nil
 	haloPlayerTable = {}
-	drawFixedReticleMemory = GetConVar( "hud_draw_fixed_reticle" ):GetString()
 
 	-- Fonts we will need later
 	surface.CreateFont( "arial16", { size = 16, weight = 400, antialias = true, additive = false, font = "Arial" } )
@@ -223,6 +222,7 @@ function GM:Initialize()
 	surface.CreateFont( "coolvetica72", { size = 72, weight = 500, antialias = true, additive = false, font = "coolvetica" } )
 	surface.CreateFont( "impact32", { size = 32, weight = 400, antialias = true, additive = false, font = "Impact" } )
 
+	-- Language
 	language.Add( "worldspawn", "World" )
 	language.Add( "func_door_rotating", "Door" )
 	language.Add( "func_door", "Door" )
@@ -244,6 +244,7 @@ function GM:Initialize()
 	language.Add( "npc_combine_s", "Combine Soldier" )
 	language.Add( "npc_strider", "Strider" )
 
+	-- Run these commands for a more HL2 style gameplay
 	RunConsoleCommand( "r_radiosity", "4" )
 	RunConsoleCommand( "hud_draw_fixed_reticle", "1" )
 
@@ -261,14 +262,6 @@ function GM:PlayerBindPress( ply, bind, down )
 	end
 
 	return false
-
-end
-
-
--- Called when LUA is about to shut down
-function GM:ShutDown()
-
-	RunConsoleCommand( "hud_draw_fixed_reticle", drawFixedReticleMemory )
 
 end
 

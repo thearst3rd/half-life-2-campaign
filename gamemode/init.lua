@@ -479,26 +479,6 @@ function GM:InitPostEntity()
 end
 
 
--- Called when LUA is about to shut down
-function GM:ShutDown()
-
-	-- Reticle
-	BroadcastLua( "RunConsoleCommand( \"hud_draw_fixed_reticle\", drawFixedReticleMemory )" )
-
-	-- Delete player data if we are allowed
-	if ( !changingLevel ) then
-	
-		for k, v in pairs( file.Find( "half-life_2_campaign/players/*", "DATA" ) ) do
-		
-			file.Delete( "half-life_2_campaign/players/"..v )
-		
-		end
-	
-	end
-
-end
-
-
 -- Called automatically or by the console command
 function GM:NextMap()
 
