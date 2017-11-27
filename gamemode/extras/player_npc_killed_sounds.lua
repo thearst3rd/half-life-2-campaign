@@ -14,7 +14,7 @@ HL2C_EXTRAS.NPC_KILLED_SOUNDS = {
 -- Called when the player spawns
 function HL2C_EXTRAS.OnNPCKilled( npc, killer, weapon )
 
-	if ( ( math.random( 1, 3 ) == 1 ) && IsValid( killer ) && killer:IsPlayer() && killer:Alive() && ( killer:Team() == TEAM_ALIVE ) && table.HasValue( PLAYER_MODELS, ply:GetModel() ) ) then
+	if ( ( math.random( 1, 3 ) == 1 ) && IsValid( killer ) && killer:IsPlayer() && killer:Alive() && ( killer:Team() == TEAM_ALIVE ) && table.HasValue( PLAYER_MODELS, killer:GetModel() ) ) then
 	
 		killer:PlayScene( table.Random( HL2C_EXTRAS.NPC_KILLED_SOUNDS ) )
 	
