@@ -26,6 +26,7 @@ function HL2C_EXTRAS.UpdatePlayerSpectatorEntity()
 		if ( IsValid( ply ) && IsValid( HL2C_EXTRAS.GetPlayerToSpectate() ) && ( ply:GetObserverTarget() != HL2C_EXTRAS.GetPlayerToSpectate() ) ) then
 		
 			ply:SpectateEntity( HL2C_EXTRAS.GetPlayerToSpectate() )
+			ply:SetPos( HL2C_EXTRAS.GetPlayerToSpectate():GetPos() )
 		
 		end
 	
