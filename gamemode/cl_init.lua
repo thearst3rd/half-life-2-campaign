@@ -271,7 +271,7 @@ function GM:OnPlayerChat( ply, text, team, dead )
 
 	local tab = {}
 
-	if ( dead || ( ply:Team() == TEAM_DEAD ) ) then
+	if ( dead || ( IsValid( ply ) && ( ply:Team() == TEAM_DEAD ) ) ) then
 	
 		table.insert( tab, Color( 255, 30, 40 ) )
 		table.insert( tab, "*DEAD* " )
