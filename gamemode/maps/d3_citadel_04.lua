@@ -1,5 +1,7 @@
 NEXT_MAP = "d3_citadel_05"
 
+TRIGGER_DELAYMAPLOAD = { Vector( -1281, -8577, 6015 ), Vector( -1151, -7743, 6200 ) }
+
 SUPER_GRAVITY_GUN = true
 
 CITADEL_ELEVATOR_CHECKPOINT1 = false

@@ -24,6 +24,14 @@
 	
 		3
 		{
+			"name"		"hl2c_server_ammo_limit"
+			"text"		"[SERVER] Ammo Limit"
+			"type"		"CheckBox"
+			"default"	"1"
+		}
+	
+		4
+		{
 			"name"		"hl2c_server_extras"
 			"text"		"[SERVER] Enable Extras"
 			"type"		"CheckBox"

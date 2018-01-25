@@ -44,18 +44,6 @@ function GM:CreateTeams()
 end
 
 
--- Called when map entities spawn
-function GM:EntityKeyValue( ent, key, value )
-
-	if ( SERVER && ( ent:GetClass() == "trigger_changelevel" ) && ( key == "map" ) ) then
-	
-		ent.map = key
-	
-	end
-
-end
-
-
 -- Called when a gravity gun is attempting to punt something
 function GM:GravGunPunt( ply, ent ) 
 

@@ -41,6 +41,7 @@ end
 -- Create console variables to make these config vars easier to access
 local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, FCVAR_NOTIFY )
 local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVAR_NOTIFY )
+local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", "1", { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_extras = CreateConVar( "hl2c_server_extras", "0", { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 
 
@@ -144,6 +145,18 @@ function GM:PlayerDeathThink( ply )
 			ply:Spawn()
 		
 		end
+	
+	end
+
+end
+
+
+-- Called when entities are created
+function GM:OnEntityCreated( ent )
+
+	if ( ent:IsNPC() && !table.HasValue( FRIENDLY_NPCS, ent:GetClass() ) && !table.HasValue( GODLIKE_NPCS, ent:GetClass() ) ) then
+	
+		ent:SetLagCompensated( true )
 	
 	end
 
@@ -349,7 +362,7 @@ end
 -- Called as soon as all map entities have been spawned 
 function GM:InitPostEntity()
 
-	-- Return to d1_trainstation_01
+	-- Return to d1_trainstation_01 if no NEXT_MAP specified
 	if ( !NEXT_MAP ) then
 	
 		game.ConsoleCommand( "changelevel d1_trainstation_01\n" )
@@ -445,6 +458,15 @@ function GM:InitPostEntity()
 	
 	end
 
+	-- Update ammo tables
+	hook.Call( "UpdateAmmoTables", GAMEMODE )
+
+end
+
+
+-- Called when we need to update the ammo items and ammo max values
+function GM:UpdateAmmoTables()
+
 	-- Ammo items
 	AMMO_ITEMS = {
 		[ "item_ammo_357" ] = game.GetAmmoID( "357" ),
@@ -477,6 +499,7 @@ function GM:InitPostEntity()
 	}
 
 end
+concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then GAMEMODE:UpdateAmmoTables() end end )
 
 
 -- Called automatically or by the console command
@@ -575,7 +598,7 @@ function GM:PlayerCanPickupWeapon( ply, wep )
 	
 	end
 
-	if ( ply:HasWeapon( wep:GetClass() ) && ( wep:GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] ) ) then
+	if ( hl2c_server_ammo_limit:GetBool() && ply:HasWeapon( wep:GetClass() ) && ( wep:GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] ) ) then
 	
 		return false
 	
@@ -595,7 +618,7 @@ function GM:PlayerCanPickupItem( ply, item )
 	
 	end
 
-	if ( AMMO_ITEMS[ item:GetClass() ] && AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] && ( ply:GetAmmoCount( AMMO_ITEMS[ item:GetClass() ] ) >= AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] ) ) then
+	if ( hl2c_server_ammo_limit:GetBool() && AMMO_ITEMS[ item:GetClass() ] && AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] && ( ply:GetAmmoCount( AMMO_ITEMS[ item:GetClass() ] ) >= AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] ) ) then
 	
 		return false
 	
@@ -833,7 +856,7 @@ function GM:PlayerSpawn( ply )
 
 	-- Players should avoid players
 	ply:SetCustomCollisionCheck( !game.SinglePlayer() )
-	ply:SetAvoidPlayers( true )
+	ply:SetAvoidPlayers( false )
 	ply:SetNoTarget( false )
 
 	-- If the player died before, kill them again
@@ -1092,7 +1115,7 @@ function GM:Think()
 			-- Sprinting and water level
 			if ( ply.nextEnergyCycle < CurTime() ) then
 			
-				if ( !ply:InVehicle() && ( ply:GetVelocity():Length() >= ( ply:GetRunSpeed() - 10 ) ) && ply:KeyDown( IN_SPEED ) && ( ply.energy > 0 ) ) then
+				if ( !ply:InVehicle() && ( ply:GetVelocity():Length() > ply:GetWalkSpeed() ) && ply:KeyDown( IN_SPEED ) && ( ply.energy > 0 ) ) then
 				
 					ply.energy = ply.energy - 2.5
 				
@@ -1134,12 +1157,16 @@ function GM:Think()
 				if ( ( ply:WaterLevel() == 3 ) && ( ply.nextSetHealth < CurTime() ) ) then
 				
 					ply.nextSetHealth = CurTime() + 1
-					ply:TakeDamage( 10 )
+					ply:SetHealth( ply:Health() - 10 )
 				
 					net.Start( "DrowningEffect" )
 					net.Send( ply )
 				
-					if ( ply:Alive() && ( ply:Health() > 0 ) ) then
+					if ( ply:Alive() && ( ply:Health() <= 0 ) ) then
+					
+						ply:Kill()
+					
+					else
 					
 						ply.healthRemoved = ply.healthRemoved + 10
 					
@@ -1170,14 +1197,14 @@ function GM:Think()
 			end
 		
 			-- Check primary ammo counts so we follow HL2 ammo max values
-			if ( IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetPrimaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] ) ) then
+			if ( hl2c_server_ammo_limit:GetBool() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetPrimaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] ) ) then
 			
 				ply:SetAmmo( AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ], ply:GetActiveWeapon():GetPrimaryAmmoType() )
 			
 			end
 		
 			-- Check secondary ammo counts so we follow HL2 ammo max values
-			if ( IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetSecondaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetSecondaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] ) ) then
+			if ( hl2c_server_ammo_limit:GetBool() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetSecondaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetSecondaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] ) ) then
 			
 				ply:SetAmmo( AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ], ply:GetActiveWeapon():GetSecondaryAmmoType() )
 			
@@ -1188,8 +1215,8 @@ function GM:Think()
 	end
 
 	-- Change the difficulty according to number of players
-	difficulty = math.Clamp( ( player.GetCount() + 1 ) / 3, DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
-	game.ConsoleCommand( "skill "..difficulty.."\n" )
+	difficulty = math.Clamp( player.GetCount() / 6, DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
+	game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
 
 	-- Open area portals
 	if ( nextAreaOpenTime <= CurTime() ) then
@@ -1200,7 +1227,7 @@ function GM:Think()
 		
 		end
 	
-		nextAreaOpenTime = CurTime() + 3
+		nextAreaOpenTime = CurTime() + 1
 	
 	end
 
@@ -1210,7 +1237,7 @@ end
 --  Player just picked up or was given a weapon
 function GM:WeaponEquip( wep )
 
-	if ( IsValid( wep ) && wep:GetClass() && !table.HasValue( startingWeapons, wep:GetClass() ) ) then
+	if ( IsValid( wep ) && !table.HasValue( startingWeapons, wep:GetClass() ) ) then
 	
 		table.insert( startingWeapons, wep:GetClass() )
 	

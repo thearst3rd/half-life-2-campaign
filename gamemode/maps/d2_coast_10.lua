@@ -41,6 +41,13 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 -- Accept input
 function HL2C_AcceptInput( ent, input )
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "greeter_briefing_conditions" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		if ( IsValid( ents.FindByName( "briefing_relay" )[ 1 ] ) ) then ents.FindByName( "briefing_relay" )[ 1 ]:Fire( "Trigger" ) end
+		return true
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "garage_door" ) && ( string.lower( input ) == "close" ) ) then
 	
 		ALLOWED_VEHICLE = nil

@@ -42,7 +42,7 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 -- Accept input
 function HL2C_AcceptInput( ent, input )
 
-	if ( !game.SinglePlayer() && ( ( ent:GetName() == "inner_door" ) || ( ent:GetName() == "lab_exit_door_raven" ) || ( ent:GetName() == "lab_exit_door_raven2" ) || ( ent:GetName() == "airlock_south_door" ) || ( ent:GetName() == "airlock_south_doorb" ) ) && ( string.lower( input ) == "close" ) ) then
+	if ( !game.SinglePlayer() && ( ( ent:GetName() == "doors_Airlock_Outside" ) || ( ent:GetName() == "inner_door" ) || ( ent:GetName() == "lab_exit_door_raven" ) || ( ent:GetName() == "lab_exit_door_raven2" ) || ( ent:GetName() == "airlock_south_door" ) || ( ent:GetName() == "airlock_south_doorb" ) ) && ( string.lower( input ) == "close" ) ) then
 	
 		return true
 	

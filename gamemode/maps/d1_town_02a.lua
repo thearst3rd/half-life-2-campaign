@@ -36,6 +36,12 @@ function HL2C_InitPostEntity()
 	monk:Spawn()
 	monk:Activate()
 
+	if ( !game.SinglePlayer() ) then
+	
+		ents.FindByName( "graveyard_exit_momentary_wheel" )[ 1 ]:Fire( "Lock" )
+	
+	end
+
 end
 hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 

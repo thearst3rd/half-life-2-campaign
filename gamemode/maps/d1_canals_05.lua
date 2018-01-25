@@ -37,6 +37,15 @@ function HL2C_AcceptInput( ent, input )
 	
 	end
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "scriptcond_pincher_cops" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		ents.FindByName( "relay_pincher_startcops" )[ 1 ]:Fire( "Trigger" )
+		ents.FindByName( "relay_pincher_startmanhacks" )[ 1 ]:Fire( "Trigger" )
+		ents.FindByName( "trigger_pincher_failsafe_left" )[ 1 ]:Fire( "Kill" )
+		return true
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "door_boatdock_entrance" ) && ( string.lower( input ) == "close" ) ) then
 	
 		return true

@@ -145,6 +145,7 @@ function HL2C_AcceptInput( ent, input, activator, caller, value )
 		for _, ply in pairs( player.GetAll() ) do
 		
 			ply:SetPos( ent:GetPos() )
+			ply:Lock()
 		
 		end
 	
@@ -222,15 +223,15 @@ if ( !game.SinglePlayer() ) then
 	
 		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
-			if ( IsValid( ply ) && IsValid( ents.FindByName( "pod_viewcontrol" )[ 1 ] ) && ply:Alive() ) then
+			if ( IsValid( ply ) && IsValid( ents.FindByName( "pod" )[ 1 ] ) && ply:Alive() ) then
 			
-				ply:SetPos( ents.FindByName( "pod_viewcontrol" )[ 1 ]:GetPos() )
+				ply:SetPos( ents.FindByName( "pod" )[ 1 ]:GetPos() )
 			
 			end
 		
 		end
 	
 	end
-	timer.Create( "HL2C_UpdatePlayerPosition", 0.5, 0, HL2C_UpdatePlayerPosition )
+	timer.Create( "HL2C_UpdatePlayerPosition", 0.1, 0, HL2C_UpdatePlayerPosition )
 
 end

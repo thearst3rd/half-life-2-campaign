@@ -1,19 +1,10 @@
 NEXT_MAP = "d3_citadel_04"
 
+RESET_WEAPONS = true
+
 TRIGGER_CHECKPOINT = {
 	{ Vector( 3175, 522, 2368 ), Vector( 3580, 562, 2529 ) }
 }
-
-CITADEL_ONLY_ONE_PHYSCANNON = true
-
-
--- Player spawns
-function HL2C_PlayerSpawn( ply )
-
-	ply:Give( "weapon_physcannon" )
-
-end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
 
 
 -- Initialize entities
@@ -34,12 +25,15 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 -- Accept input
 function HL2C_AcceptInput( ent, input )
 
+	if ( ( ent:GetName() == "logic_weapon_strip_dissolve" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		if ( IsValid( ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ] ) ) then ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ]:Fire( "Trigger", "", 3 ) end
+	
+	end
+
 	if ( ( ent:GetName() == "strip_stop" ) && ( string.lower( input ) == "trigger" ) ) then
 	
-		CITADEL_ONLY_ONE_PHYSCANNON = false
 		SUPER_GRAVITY_GUN = true
-	
-		ents.FindByClass( "weapon_physcannon" )[ 1 ]:Remove()
 	
 		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
@@ -60,21 +54,17 @@ hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
 -- Every frame or tick
 function HL2C_Think()
 
-	if ( CITADEL_ONLY_ONE_PHYSCANNON ) then
+	if ( SUPER_GRAVITY_GUN ) then
 	
 		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
 		
 			if ( IsValid( ent ) && ent:IsWeapon() ) then
 			
-				if ( ent != ents.FindByClass( "weapon_physcannon" )[ 1 ] ) then ent:Remove() end
+				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ) end
 			
 			end
 		
 		end
-	
-	end
-
-	if ( SUPER_GRAVITY_GUN ) then
 	
 		for _, ent in pairs( ents.FindByClass( "ai_weapon_*" ) ) do
 		
@@ -91,16 +81,6 @@ function HL2C_Think()
 			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) ) then
 			
 				ent:Remove()
-			
-			end
-		
-		end
-	
-		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
-		
-			if ( IsValid( ent ) && ent:IsWeapon() ) then
-			
-				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ) end
 			
 			end
 		

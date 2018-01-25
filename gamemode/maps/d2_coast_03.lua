@@ -37,6 +37,63 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 -- Accept input
 function HL2C_AcceptInput( ent, input )
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_ingreeterrange" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		if ( IsValid( ents.FindByName( "lcs_odessaGreeting" )[ 1 ] ) ) then ents.FindByName( "lcs_odessaGreeting" )[ 1 ]:Fire( "Kill" ) end
+		if ( IsValid( ents.FindByName( "aisc_ingreeterrange" )[ 1 ] ) ) then ents.FindByName( "aisc_ingreeterrange" )[ 1 ]:Fire( "Kill" ) end
+		if ( IsValid( ents.FindByName( "lcs_odessa_lead" )[ 1 ] ) ) then ents.FindByName( "lcs_odessa_lead" )[ 1 ]:Fire( "Start", "", 0.1 ) end
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_pre_ingreeterrange" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		if ( IsValid( ents.FindByName( "ss_gordongreet" )[ 1 ] ) ) then ents.FindByName( "ss_gordongreet" )[ 1 ]:Fire( "Kill" ) end
+		if ( IsValid( ents.FindByName( "aisc_pre_ingreeterrange" )[ 1 ] ) ) then ents.FindByName( "aisc_pre_ingreeterrange" )[ 1 ]:Fire( "Kill" ) end
+		if ( IsValid( ents.FindByName( "lcs_odessaGreeting" )[ 1 ] ) ) then ents.FindByName( "lcs_odessaGreeting" )[ 1 ]:Fire( "Start" ) end
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_gordontakesrpg" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		for _, ent in pairs( ents.FindByName( "citizen_a_precmbt_*" ) ) do
+		
+			ent:Fire( "Kill" )
+		
+		end
+		if ( IsValid( ents.FindByName( "player_leaves_house" )[ 1 ] ) ) then ents.FindByName( "player_leaves_house" )[ 1 ]:Fire( "Enable" ) end
+		if ( IsValid( ents.FindByName( "rocketman_scene_0" )[ 1 ] ) ) then ents.FindByName( "rocketman_scene_0" )[ 1 ]:Fire( "Resume" ) end
+		if ( IsValid( ents.FindByName( "spawner_rpg" )[ 1 ] ) ) then ents.FindByName( "spawner_rpg" )[ 1 ]:Fire( "ForceSpawn" ) end
+		if ( IsValid( ents.FindByName( "pd_rpg" )[ 1 ] ) ) then ents.FindByName( "pd_rpg" )[ 1 ]:Fire( "Kill" ) end
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_odessapostgunship" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		if ( IsValid( ents.FindByName( "aisc_odessapostgunshipignored" )[ 1 ] ) ) then ents.FindByName( "aisc_odessapostgunshipignored" )[ 1 ]:Fire( "Enable" ) end
+		if ( IsValid( ents.FindByName( "tm_gatekeeper" )[ 1 ] ) ) then ents.FindByName( "tm_gatekeeper" )[ 1 ]:Fire( "ForceSpawn" ) end
+		if ( IsValid( ents.FindByName( "aisc_odessapostgunship" )[ 1 ] ) ) then ents.FindByName( "aisc_odessapostgunship" )[ 1 ]:Fire( "Kill" ) end
+		if ( IsValid( ents.FindByName( "rocketman_gunship1" )[ 1 ] ) ) then ents.FindByName( "rocketman_gunship1" )[ 1 ]:Fire( "Resume" ) end
+		if ( IsValid( ents.FindByName( "ss_odessa_radio" )[ 1 ] ) ) then ents.FindByName( "ss_odessa_radio" )[ 1 ]:Fire( "CancelSequence" ) end
+		if ( IsValid( ents.FindByName( "post_gunship_jeep_relay" )[ 1 ] ) ) then ents.FindByName( "post_gunship_jeep_relay" )[ 1 ]:Fire( "Kill" ) end
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_odessapostgunshipignored" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		if ( IsValid( ents.FindByName( "lr_odessa_goodbye" )[ 1 ] ) ) then ents.FindByName( "lr_odessa_goodbye" )[ 1 ]:Fire( "Trigger", "", 1 ) end
+		if ( IsValid( ents.FindByName( "odessa_goodbye" )[ 1 ] ) ) then ents.FindByName( "odessa_goodbye" )[ 1 ]:Fire( "Cancel" ) end
+		if ( IsValid( ents.FindByName( "odessa_getyourcar" )[ 1 ] ) ) then ents.FindByName( "odessa_getyourcar" )[ 1 ]:Fire( "Cancel" ) end
+		if ( IsValid( ents.FindByName( "lr_odessa_getyourcar" )[ 1 ] ) ) then ents.FindByName( "lr_odessa_getyourcar" )[ 1 ]:Fire( "Trigger", "", 0.5 ) end
+		if ( IsValid( ents.FindByName( "lr_vort_goodbye" )[ 1 ] ) ) then ents.FindByName( "lr_vort_goodbye" )[ 1 ]:Fire( "Trigger", "", 1.5 ) end
+		if ( IsValid( ents.FindByName( "vort_goodbye" )[ 1 ] ) ) then ents.FindByName( "vort_goodbye" )[ 1 ]:Fire( "Cancel" ) end
+		return true
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "basement_gordon_first_entered" ) && ( string.lower( input ) == "trigger" ) ) then
 	
 		ALLOWED_VEHICLE = nil

@@ -1,5 +1,3 @@
-ALLOWED_VEHICLE = "Jeep"
-
 NEXT_MAP = "d2_coast_03"
 
 
@@ -35,6 +33,13 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 
 -- Accept input
 function HL2C_AcceptInput( ent, input )
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "logic_startcraneseq" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		ALLOWED_VEHICLE = "Jeep"
+		PrintMessage( HUD_PRINTTALK, "You're now allowed to spawn the Jeep (F3)." )
+	
+	end
 
 	if ( !game.SinglePlayer() && ( ent:GetName() == "push_car_superjump_01" ) && ( string.lower( input ) == "disable" ) ) then
 	

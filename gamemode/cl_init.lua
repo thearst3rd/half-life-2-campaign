@@ -22,8 +22,6 @@ CreateConVar( "cl_playercolor", "0.24 0.34 0.41", { FCVAR_ARCHIVE, FCVAR_USERINF
 CreateConVar( "cl_playerskin", "0", { FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD }, "The skin to use, if the model has any" )
 CreateConVar( "cl_playerbodygroups", "0", { FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD }, "The bodygroups to use, if the model has any" )
 
-local hl2c_cl_drawhalos = CreateClientConVar( "hl2c_cl_drawhalos", "1" )
-
 
 -- Client only constants
 DROWNING_SOUNDS = {
@@ -246,7 +244,6 @@ function GM:Initialize()
 
 	-- Run these commands for a more HL2 style gameplay
 	RunConsoleCommand( "r_radiosity", "4" )
-	RunConsoleCommand( "hud_draw_fixed_reticle", "1" )
 
 end
 
@@ -310,12 +307,6 @@ end
 function NextMap( len )
 
 	nextMapCountdownStart = net.ReadInt( 32 )
-
-	if ( LocalPlayer():Team() != TEAM_ALIVE ) then
-	
-		GAMEMODE:ScoreboardShow()
-	
-	end
 
 end
 net.Receive( "NextMap", NextMap )
@@ -411,24 +402,14 @@ function GM:ScoreboardShow()
 end
 
 
--- Called by the Halo library
-function GM:PreDrawHalos()
+-- Called when the player is drawn
+function GM:PostPlayerDraw( ply )
 
-	if ( #haloPlayerTable > 0 ) then haloPlayerTable = {} end
-
-	if ( ( ( 1 / RealFrameTime() ) >= 30 ) && showNav && hl2c_cl_drawhalos:GetBool() ) then
+	if ( showNav && IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && ( ply != LocalPlayer() ) ) then
 	
-		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
-		
-			if ( IsValid( ply ) && ( ply != LocalPlayer() ) && ply:Alive() && !ply:IsLineOfSightClear( LocalPlayer() ) ) then
-			
-				table.insert( haloPlayerTable, ply )
-			
-			end
-		
-		end
-	
-		if ( #haloPlayerTable > 0 ) then halo.Add( haloPlayerTable, Color( 0, 255, 0 ), 2, 2, 2, true, true ) end
+		cam.Start3D2D( ply:GetPos() + Vector( 0, 0, 76 ), Angle( 0, EyeAngles().y - 90, 90 ), 0.25 )
+			draw.SimpleText( ply:Name(), "TargetIDSmall", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		cam.End3D2D()
 	
 	end
 

@@ -37,6 +37,31 @@ hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
 -- Accept input
 function HL2C_AcceptInput( ent, input )
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_attentiontoradio" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		ents.FindByName( "alyx_camera" )[ 1 ]:Fire( "SetOn" )
+		ents.FindByName( "lcs_leon_nag" )[ 1 ]:Fire( "Kill" )
+		ents.FindByName( "radio_nag" )[ 1 ]:Fire( "Kill" )
+		ents.FindByName( "lcs_leon_radios3" )[ 1 ]:Fire( "Start" )
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_leon_waits" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		ents.FindByName( "warehouse_leonleads_lcs" )[ 1 ]:Fire( "Start" )
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "aisc_leaonwait1" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		ents.FindByName( "warehouse_leonleads_lcs" )[ 1 ]:Fire( "Resume" )
+		ents.FindByName( "radio_nag" )[ 1 ]:Fire( "Disable" )
+		return true
+	
+	end
+
 	if ( !game.SinglePlayer() && TOWN_CREATE_NEW_SPAWNPOINT && ( ent:GetName() == "citizen_warehouse_door_1" ) && ( string.lower( input ) == "open" ) ) then
 	
 		TOWN_CREATE_NEW_SPAWNPOINT = false

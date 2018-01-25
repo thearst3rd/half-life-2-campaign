@@ -102,6 +102,6 @@ if ( !game.SinglePlayer() ) then
 		end
 	
 	end
-	timer.Create( "HL2C_UpdatePlayerPosition", 0.5, 0, HL2C_UpdatePlayerPosition )
+	timer.Create( "HL2C_UpdatePlayerPosition", 0.1, 0, HL2C_UpdatePlayerPosition )
 
 end
