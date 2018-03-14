@@ -41,8 +41,9 @@ end
 -- Create console variables to make these config vars easier to access
 local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, FCVAR_NOTIFY )
 local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVAR_NOTIFY )
-local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", "1", { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_extras = CreateConVar( "hl2c_server_extras", "0", { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_extras = CreateConVar( "hl2c_server_extras", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, FCVAR_NOTIFY )
 
 
 -- Include extras
@@ -209,7 +210,7 @@ function GM:EntityTakeDamage( ent, dmgInfo )
 	
 		if ( IsValid( attacker:GetActiveWeapon() ) && ( attacker:GetActiveWeapon():GetClass() == "weapon_crowbar" ) ) then
 		
-			dmgInfo:SetDamage( GetConVarNumber( "sk_plr_dmg_crowbar" ) )
+			dmgInfo:SetDamage( 10 / difficulty )
 		
 		end
 	
@@ -271,6 +272,7 @@ function GM:Initialize()
 	-- Variables and stuff
 	deadPlayers = {}
 	difficulty = 1
+	updateDifficulty = 0
 	changingLevel = false
 	checkpointPositions = {}
 	nextAreaOpenTime = 0
@@ -737,6 +739,8 @@ function GM:PlayerLoadout( ply )
 		ply:Give( "weapon_physgun" )
 	
 	end
+
+	hook.Call( "PostPlayerLoadout", GAMEMODE, ply )
 
 end
 
@@ -1215,8 +1219,15 @@ function GM:Think()
 	end
 
 	-- Change the difficulty according to number of players
-	difficulty = math.Clamp( player.GetCount() / 6, DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
-	game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
+	if ( ( player.GetCount() > 0 ) && ( updateDifficulty < CurTime() ) ) then
+	
+		difficulty = math.Clamp( math.Remap( player.GetCount(), 8, 16, 1, 3 ), DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
+		game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
+	
+		-- Do not update all the time
+		updateDifficulty = CurTime() + 5
+	
+	end
 
 	-- Open area portals
 	if ( nextAreaOpenTime <= CurTime() ) then

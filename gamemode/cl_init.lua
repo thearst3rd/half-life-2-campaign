@@ -173,7 +173,7 @@ function GM:HUDPaint()
 	end
 
 	-- On top of it all
-	self:DrawDeathNotice( 0.85, 0.04 )
+	hook.Run( "DrawDeathNotice", 0.85, 0.04 )
 
 end
 

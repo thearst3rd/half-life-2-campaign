@@ -37,5 +37,13 @@
 			"type"		"CheckBox"
 			"default"	"0"
 		}
+	
+		5
+		{
+			"name"		"hl2c_server_checkpoint_respawn"
+			"text"		"[SERVER] Checkpoint Respawning"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
 	}
 }

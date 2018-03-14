@@ -30,24 +30,30 @@ function ENT:StartTouch( ent )
 
 	if ( IsValid( ent ) && ent:IsPlayer() && ( ent:Team() == TEAM_ALIVE ) && !self.triggered ) then
 	
+		-- Checkpoint was triggered
 		self.triggered = true
 	
+		-- Run on touch
 		if ( self.OnTouchRun ) then
 		
 			self:OnTouchRun()
 		
 		end
 	
+		-- Get the touching entity angles
 		local ang = ent:GetAngles()
 	
+		-- Skip creating a spawn point
 		if ( !self.skipSpawnpoint ) then
 		
 			GAMEMODE:CreateSpawnPoint( self.ipsLocation, ang.y )
 		
 		end
 	
+		-- Each individual player
 		for _, ply in pairs( player.GetAll() ) do
 		
+			-- Set player positions
 			if ( IsValid( ply ) && ( ply != ent ) && ( ply:Team() == TEAM_ALIVE ) ) then
 			
 				if ( IsValid( ply:GetVehicle() ) ) then
@@ -62,14 +68,27 @@ function ENT:StartTouch( ent )
 			
 			end
 		
+			-- Dead players become alive again
+			if ( GetConVar( "hl2c_server_checkpoint_respawn" ):GetBool() && IsValid( ply ) && ( ply != ent ) && ( ply:Team() == TEAM_DEAD ) ) then
+			
+				deadPlayers = {}
+			
+				ply:SetTeam( TEAM_ALIVE )
+				ply:Spawn()
+			
+			end
+		
 		end
 	
+		-- Remove the checkpoint from the table
 		table.remove( checkpointPositions, 1 )
 	
+		-- Update checkpoints on the client
 		net.Start( "SetCheckpointPosition" )
 			net.WriteVector( checkpointPositions[ 1 ] )
 		net.Broadcast()
 	
+		-- Remove the trigger
 		self:Remove()
 	
 	end
