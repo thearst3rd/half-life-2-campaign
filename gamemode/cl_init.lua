@@ -71,8 +71,8 @@ function GM:HUDPaint()
 	
 	end
 
-	self:HUDDrawTargetID()
-	self:HUDDrawPickupHistory()
+	hook.Run( "HUDDrawTargetID" )
+	hook.Run( "HUDDrawPickupHistory" )
 	surface.SetDrawColor( 0, 0, 0, 0 )
 
 	w = ScrW()
@@ -106,7 +106,8 @@ function GM:HUDPaint()
 	
 	end
 
-	if ( LocalPlayer():Team() == TEAM_DEAD ) then	-- If dead, then draw spectator letterbox
+	-- If dead, then draw spectator letterbox
+	if ( LocalPlayer():Team() == TEAM_DEAD ) then
 	
 		surface.SetDrawColor( 0, 0, 0, 255 )
 		surface.DrawRect( 0, 0, w, h * 0.10 )
@@ -129,7 +130,7 @@ function GM:HUDPaint()
 		
 		end
 	
-		-- Aux bar
+		-- AUX bar
 		if ( energy < 100 ) then
 		
 			draw.RoundedBox( 8, ( ScrH() - h * 0.132 ) / 27.75, ScrH() - h * 0.132, h * 0.026 * 8.2, h * 0.026, Color( 0, 0, 0, 75 ) )
@@ -242,7 +243,7 @@ function GM:Initialize()
 	language.Add( "npc_combine_s", "Combine Soldier" )
 	language.Add( "npc_strider", "Strider" )
 
-	-- Run these commands for a more HL2 style gameplay
+	-- Run this command for a more HL2 style gameplay
 	RunConsoleCommand( "r_radiosity", "4" )
 
 end
@@ -306,7 +307,7 @@ end
 -- Called when going to the next map
 function NextMap( len )
 
-	nextMapCountdownStart = net.ReadInt( 32 )
+	nextMapCountdownStart = net.ReadFloat()
 
 end
 net.Receive( "NextMap", NextMap )
@@ -330,7 +331,7 @@ net.Receive( "PlayerInitialSpawn", PlayerInitialSpawn )
 -- Called when restarting maps
 function RestartMap( len )
 
-	restartMapCountdownStart = net.ReadInt( 32 )
+	restartMapCountdownStart = net.ReadFloat()
 
 	GAMEMODE:ScoreboardShow()
 
@@ -407,8 +408,9 @@ function GM:PostPlayerDraw( ply )
 
 	if ( showNav && IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && ( ply != LocalPlayer() ) ) then
 	
-		cam.Start3D2D( ply:GetPos() + Vector( 0, 0, 76 ), Angle( 0, EyeAngles().y - 90, 90 ), 0.25 )
-			draw.SimpleText( ply:Name(), "TargetIDSmall", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		local bonePosition = ply:GetBonePosition( ply:LookupBone( "ValveBiped.Bip01_Head1" ) )
+		cam.Start3D2D( bonePosition + Vector( 0, 0, 16 ), Angle( 0, EyeAngles().y - 90, 90 ), 0.25 )
+			draw.SimpleText( ply:Name(), "TargetID", 0, 0, self:GetTeamColor( ply ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 		cam.End3D2D()
 	
 	end
@@ -437,7 +439,7 @@ net.Receive( "SetCheckpointPosition", SetCheckpointPosition )
 -- Called by server Think()
 function UpdateEnergy( len )
 
-	energy = net.ReadInt( 16 )
+	energy = net.ReadFloat()
 
 end
 net.Receive( "UpdateEnergy", UpdateEnergy )

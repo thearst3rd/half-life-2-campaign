@@ -45,5 +45,13 @@
 			"type"		"CheckBox"
 			"default"	"0"
 		}
+	
+		6
+		{
+			"name"		"hl2c_server_dynamic_skill_level"
+			"text"		"[SERVER] Dynamic Skill Leveling"
+			"type"		"CheckBox"
+			"default"	"1"
+		}
 	}
 }

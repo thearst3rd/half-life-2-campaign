@@ -44,6 +44,7 @@ local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVA
 local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_extras = CreateConVar( "hl2c_server_extras", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, FCVAR_NOTIFY )
+local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, FCVAR_NOTIFY )
 
 
 -- Include extras
@@ -255,7 +256,7 @@ function GM:GrabAndSwitch()
 		
 		end
 	
-		local plyID = ( ply:SteamID64() || ply:UniqueID() )
+		local plyID = ply:SteamID64() || ply:UniqueID()
 		file.Write( "half-life_2_campaign/players/"..plyID..".txt", util.TableToJSON( plyInfo ) )
 	
 	end
@@ -279,6 +280,7 @@ function GM:Initialize()
 	startingWeapons = {}
 	restartWhenAllDead = true
 	spectatorMode = OBS_MODE_ROAMING
+	flashlightDrainsAUX = true
 
 	-- Network strings
 	util.AddNetworkString( "SetCheckpointPosition" )
@@ -516,7 +518,7 @@ function GM:NextMap()
 	changingLevel = true
 
 	net.Start( "NextMap" )
-		net.WriteInt( CurTime(), 32 )
+		net.WriteFloat( CurTime() )
 	net.Broadcast()
 
 	timer.Simple( NEXT_MAP_TIME, function() self:GrabAndSwitch() end )
@@ -634,7 +636,7 @@ end
 -- Called when a player disconnects
 function GM:PlayerDisconnected( ply )
 
-	local plyID = ( ply:SteamID64() || ply:UniqueID() )
+	local plyID = ply:SteamID64() || ply:UniqueID()
 	if ( file.Exists( "half-life_2_campaign/players/"..plyID..".txt", "DATA" ) ) then
 	
 		file.Delete( "half-life_2_campaign/players/"..plyID..".txt" )
@@ -659,7 +661,7 @@ function GM:PlayerInitialSpawn( ply )
 	ply:SetTeam( TEAM_ALIVE )
 
 	-- Grab previous map info
-	local plyID = ( ply:SteamID64() || ply:UniqueID() )
+	local plyID = ply:SteamID64() || ply:UniqueID()
 	if ( file.Exists( "half-life_2_campaign/players/"..plyID..".txt", "DATA" ) ) then
 	
 		ply.info = util.JSONToTable( file.Read( "half-life_2_campaign/players/"..plyID..".txt", "DATA" ) )
@@ -891,7 +893,7 @@ function GM:PlayerSwitchFlashlight( ply, on )
 	
 	end
 
-	return ( ply:CanUseFlashlight() && ply:IsSuitEquipped() && !ply:GetNWBool( "sprintDisabled", false ) )
+	return ( ply:CanUseFlashlight() && ply:IsSuitEquipped() && ( !flashlightDrainsAUX || !ply:GetNWBool( "sprintDisabled", false ) ) )
 
 end
 
@@ -922,7 +924,7 @@ function GM:RestartMap()
 	changingLevel = true
 
 	net.Start( "RestartMap" )
-		net.WriteInt( CurTime(), 32 )
+		net.WriteFloat( CurTime() )
 	net.Broadcast()
 
 	for _, ply in pairs( player.GetAll() ) do
@@ -1127,7 +1129,7 @@ function GM:Think()
 				
 					ply.energy = ply.energy - 0.75
 				
-				elseif ( !ply:InVehicle() && ply:FlashlightIsOn() && ( ply.energy > 0 ) ) then
+				elseif ( flashlightDrainsAUX && !ply:InVehicle() && ply:FlashlightIsOn() && ( ply.energy > 0 ) ) then
 				
 					ply.energy = ply.energy - 0.25
 				
@@ -1140,7 +1142,7 @@ function GM:Think()
 				ply.energy = math.Clamp( ply.energy, 0, 100 )
 			
 				net.Start( "UpdateEnergy" )
-					net.WriteInt( ply.energy, 16 )
+					net.WriteFloat( ply.energy )
 				net.Send( ply )
 			
 				ply.nextEnergyCycle = CurTime() + 0.1
@@ -1152,7 +1154,7 @@ function GM:Think()
 			
 				if ( !ply:GetNWBool( "sprintDisabled", false ) ) then
 				
-					if ( ply:FlashlightIsOn() ) then ply:Flashlight( false ) end
+					if ( flashlightDrainsAUX && ply:FlashlightIsOn() ) then ply:Flashlight( false ) end
 					ply:SetNWBool( "sprintDisabled", true )
 				
 				end
@@ -1219,9 +1221,9 @@ function GM:Think()
 	end
 
 	-- Change the difficulty according to number of players
-	if ( ( player.GetCount() > 0 ) && ( updateDifficulty < CurTime() ) ) then
+	if ( hl2c_server_dynamic_skill_level:GetBool() && ( player.GetCount() > 0 ) && ( updateDifficulty < CurTime() ) ) then
 	
-		difficulty = math.Clamp( math.Remap( player.GetCount(), 8, 16, 1, 3 ), DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
+		difficulty = math.Clamp( math.Remap( player.GetCount(), 4, 16, 1, 3 ), DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
 		game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
 	
 		-- Do not update all the time
@@ -1245,7 +1247,7 @@ function GM:Think()
 end
 
 
---  Player just picked up or was given a weapon
+-- Player just picked up or was given a weapon
 function GM:WeaponEquip( wep )
 
 	if ( IsValid( wep ) && !table.HasValue( startingWeapons, wep:GetClass() ) ) then
@@ -1255,3 +1257,17 @@ function GM:WeaponEquip( wep )
 	end
 
 end
+
+
+-- Dynamic skill level console variable was changed
+function DynamicSkillToggleCallback( name, old, new )
+
+	if ( !hl2c_server_dynamic_skill_level:GetBool() ) then
+	
+		difficulty = DIFFICULTY_RANGE[ 1 ]
+		game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
+	
+	end
+
+end
+cvars.AddChangeCallback( "hl2c_server_dynamic_skill_level", DynamicSkillToggleCallback, "DynamicSkillToggleCallback" )
