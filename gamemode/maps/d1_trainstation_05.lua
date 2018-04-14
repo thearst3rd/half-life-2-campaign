@@ -10,7 +10,7 @@ TRAINSTATION_REMOVESUIT = true
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	if ( TRAINSTATION_REMOVESUIT ) then
 	
@@ -26,11 +26,11 @@ function HL2C_PlayerSpawn( ply )
 	end
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Entity removed
-function HL2C_EntityRemoved( ent )
+function hl2cEntityRemoved( ent )
 
 	if ( ent:GetClass() == "item_suit" ) then
 	
@@ -47,11 +47,11 @@ function HL2C_EntityRemoved( ent )
 	end
 
 end
-hook.Add( "EntityRemoved", "HL2C_EntityRemoved", HL2C_EntityRemoved )
+hook.Add( "EntityRemoved", "hl2cEntityRemoved", hl2cEntityRemoved )
 
 
 -- Accept input
-function HL2C_AcceptInput( ent, input, activator, caller, value )
+function hl2cAcceptInput( ent, input, activator, caller, value )
 
 	if ( ( ent:GetName() == "viewcontrol_ickycam" ) && ( string.lower( input ) == "enable" ) ) then
 	
@@ -103,4 +103,4 @@ function HL2C_AcceptInput( ent, input, activator, caller, value )
 	end
 
 end
-hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )

@@ -45,6 +45,7 @@ local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", 1, { FCVA
 local hl2c_server_extras = CreateConVar( "hl2c_server_extras", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, FCVAR_NOTIFY )
 local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, FCVAR_NOTIFY )
+local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, FCVAR_NOTIFY )
 
 
 -- Include extras
@@ -156,7 +157,7 @@ end
 -- Called when entities are created
 function GM:OnEntityCreated( ent )
 
-	if ( ent:IsNPC() && !table.HasValue( FRIENDLY_NPCS, ent:GetClass() ) && !table.HasValue( GODLIKE_NPCS, ent:GetClass() ) ) then
+	if ( hl2c_server_lag_compensation:GetBool() && ent:IsNPC() && !table.HasValue( NPC_EXCLUDE_LAG_COMPENSATION, ent:GetClass() ) ) then
 	
 		ent:SetLagCompensated( true )
 	
@@ -186,10 +187,18 @@ end
 -- Called when an entity has received damage	  
 function GM:EntityTakeDamage( ent, dmgInfo )
 
+	-- Gets the attacker
 	local attacker = dmgInfo:GetAttacker()
 
-	-- If a friendly/godlike npc do no damage
-	if ( IsValid( ent ) && IsValid( attacker ) && ( table.HasValue( GODLIKE_NPCS, ent:GetClass() ) || ( attacker:IsPlayer() && table.HasValue( FRIENDLY_NPCS, ent:GetClass() ) ) ) ) then
+	-- Godlike NPCs take no damage ever
+	if ( IsValid( ent ) && table.HasValue( GODLIKE_NPCS, ent:GetClass() ) ) then
+	
+		return true
+	
+	end
+
+	-- NPCs cannot be damaged by friends
+	if ( IsValid( ent ) && ent:IsNPC() && IsValid( attacker ) && ( ent:Disposition( attacker ) == D_LI ) ) then
 	
 		return true
 	

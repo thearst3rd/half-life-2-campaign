@@ -1,5 +1,5 @@
 -- Add question scenes to a table
-HL2C_EXTRAS.DEATH_MESSAGES = {
+hl2cExtras.deathMessages = {
 	"scenes/npc/$gender01/goodgod.vcd",
 	"scenes/npc/$gender01/gordead_ans01.vcd",
 	"scenes/npc/$gender01/gordead_ans02.vcd",
@@ -45,7 +45,7 @@ function GM:PostPlayerDeath( ply )
 	
 		if ( IsValid( ply ) && ply:Alive() && table.HasValue( PLAYER_MODELS, ply:GetModel() ) ) then
 		
-			timer.Simple( math.Rand( 0.5, 2.5 ), function() if ( IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && table.HasValue( PLAYER_MODELS, ply:GetModel() ) ) then ply:PlayScene( table.Random( HL2C_EXTRAS.DEATH_MESSAGES ) ) end end )
+			timer.Simple( math.Rand( 0.5, 2.5 ), function() if ( IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && table.HasValue( PLAYER_MODELS, ply:GetModel() ) ) then ply:PlayScene( table.Random( hl2cExtras.deathMessages ) ) end end )
 		
 		end
 	

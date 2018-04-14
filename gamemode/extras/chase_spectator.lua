@@ -1,5 +1,5 @@
 -- Function to return a good player to spectate
-function HL2C_EXTRAS.GetPlayerToSpectate()
+function hl2cExtras.GetPlayerToSpectate()
 
 	for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
 	
@@ -17,20 +17,20 @@ end
 
 
 -- Time the observer stuff
-function HL2C_EXTRAS.UpdatePlayerSpectatorEntity()
+function hl2cExtras.UpdatePlayerSpectatorEntity()
 
 	if ( spectatorMode != OBS_MODE_CHASE ) then spectatorMode = OBS_MODE_CHASE end
 
 	for _, ply in pairs( team.GetPlayers( TEAM_DEAD ) ) do
 	
-		if ( IsValid( ply ) && IsValid( HL2C_EXTRAS.GetPlayerToSpectate() ) && ( ply:GetObserverTarget() != HL2C_EXTRAS.GetPlayerToSpectate() ) ) then
+		if ( IsValid( ply ) && IsValid( hl2cExtras.GetPlayerToSpectate() ) && ( ply:GetObserverTarget() != hl2cExtras.GetPlayerToSpectate() ) ) then
 		
-			ply:SpectateEntity( HL2C_EXTRAS.GetPlayerToSpectate() )
-			ply:SetPos( HL2C_EXTRAS.GetPlayerToSpectate():GetPos() )
+			ply:SpectateEntity( hl2cExtras.GetPlayerToSpectate() )
+			ply:SetPos( hl2cExtras.GetPlayerToSpectate():GetPos() )
 		
 		end
 	
 	end
 
 end
-timer.Create( "HL2C_EXTRAS.UpdatePlayerSpectatorEntity", 1, 0, HL2C_EXTRAS.UpdatePlayerSpectatorEntity )
+timer.Create( "hl2cExtras.UpdatePlayerSpectatorEntity", 1, 0, hl2cExtras.UpdatePlayerSpectatorEntity )

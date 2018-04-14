@@ -4,20 +4,20 @@ NEXT_MAP = "d1_trainstation_03"
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	ply:RemoveSuit()
 	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	game.SetGlobalState( "gordon_precriminal", GLOBAL_ON )
 	game.SetGlobalState( "gordon_invulnerable", GLOBAL_ON )
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )

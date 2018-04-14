@@ -2,16 +2,16 @@ NEXT_MAP = "d2_prison_05"
 
 
 -- Player initial spawn
-function HL2C_PlayerInitialSpawn( ply )
+function hl2cPlayerInitialSpawn( ply )
 
 	ply:SendLua( "table.insert( FRIENDLY_NPCS, \"npc_antlion\" )" )
 
 end
-hook.Add( "PlayerInitialSpawn", "HL2C_PlayerInitialSpawn", HL2C_PlayerInitialSpawn )
+hook.Add( "PlayerInitialSpawn", "hl2cPlayerInitialSpawn", hl2cPlayerInitialSpawn )
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	ply:Give( "weapon_crowbar" )
 	ply:Give( "weapon_pistol" )
@@ -26,11 +26,11 @@ function HL2C_PlayerSpawn( ply )
 	ply:Give( "weapon_bugbait" )
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	game.SetGlobalState( "antlion_allied", GLOBAL_ON )
 
@@ -41,4 +41,4 @@ function HL2C_InitPostEntity()
 	table.insert( FRIENDLY_NPCS, "npc_antlion" )
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )

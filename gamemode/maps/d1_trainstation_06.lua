@@ -4,7 +4,7 @@ NEXT_MAP = "d1_canals_01"
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	ents.FindByName( "player_spawn_items_template" )[ 1 ]:Remove()
 
@@ -33,4 +33,4 @@ function HL2C_InitPostEntity()
 	end
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )

@@ -9,16 +9,16 @@ CITADEL_ELEVATOR_CHECKPOINT2 = true
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	ply:Give( "weapon_physcannon" )
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	game.ConsoleCommand( "physcannon_tracelength 850\n" )
 	game.ConsoleCommand( "physcannon_maxmass 850\n" )
@@ -29,11 +29,11 @@ function HL2C_InitPostEntity()
 	ents.FindByName( "global_newgame_template_local_items" )[ 1 ]:Remove()
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
 
 
 -- Accept input
-function HL2C_AcceptInput( ent, input )
+function hl2cAcceptInput( ent, input )
 
 	if ( !game.SinglePlayer() && !CITADEL_ELEVATOR_CHECKPOINT1 && ( ent:GetName() == "citadel_brush_elevcage1_1" ) && ( string.lower( input ) == "enable" ) ) then
 	
@@ -64,11 +64,11 @@ function HL2C_AcceptInput( ent, input )
 	end
 
 end
-hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )
 
 
 -- Every frame or tick
-function HL2C_Think()
+function hl2cThink()
 
 	if ( SUPER_GRAVITY_GUN ) then
 	
@@ -115,4 +115,4 @@ function HL2C_Think()
 	end
 
 end
-hook.Add( "Think", "HL2C_Think", HL2C_Think )
+hook.Add( "Think", "hl2cThink", hl2cThink )

@@ -5,12 +5,12 @@ if ( SERVER ) then
 
 
 	-- Called when the player initially spawns
-	function HL2C_EXTRAS.PlayerInitialSpawn( ply )
+	function hl2cExtras.PlayerInitialSpawn( ply )
 	
 		ply:SendLua( "include( \"half-life_2_campaign/gamemode/extras/client_thirdperson.lua\" )" )
 	
 	end
-	hook.Add( "PlayerInitialSpawn", "HL2C_EXTRAS.PlayerInitialSpawn", HL2C_EXTRAS.PlayerInitialSpawn )
+	hook.Add( "PlayerInitialSpawn", "hl2cExtras.PlayerInitialSpawn", hl2cExtras.PlayerInitialSpawn )
 
 end
 
@@ -18,15 +18,15 @@ end
 -- Execute on client
 if ( CLIENT ) then
 
-	local HL2C_EXTRAS = {}
+	local hl2cExtras = {}
 
 	local hl2c_cl_thirdperson = CreateClientConVar( "hl2c_cl_thirdperson", "0", false, false )
 
 
 	-- Called every frame to calculate player views
-	function HL2C_EXTRAS.CalcView( ply, pos, ang, fov, zn, zf )
+	function hl2cExtras.CalcView( ply, pos, ang, fov, zn, zf )
 	
-		if ( hl2c_cl_thirdperson:GetBool() ) then
+		if ( hl2c_cl_thirdperson:GetBool() && ply:Alive() && !ply:InVehicle() ) then
 		
 			local view = {}
 		
@@ -42,6 +42,6 @@ if ( CLIENT ) then
 		end
 	
 	end
-	hook.Add( "CalcView", "HL2C_EXTRAS.CalcView", HL2C_EXTRAS.CalcView )
+	hook.Add( "CalcView", "hl2cExtras.CalcView", hl2cExtras.CalcView )
 
 end

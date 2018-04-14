@@ -8,7 +8,7 @@ TRIGGER_DELAYMAPLOAD = { Vector( -703, 989, -2688 ), Vector( -501, 1029, -2527 )
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	ply:Give( "weapon_crowbar" )
 	ply:Give( "weapon_pistol" )
@@ -17,11 +17,11 @@ function HL2C_PlayerSpawn( ply )
 	ply:Give( "weapon_frag" )
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	ents.FindByName( "global_newgame_template_ammo" )[ 1 ]:Remove()
 	ents.FindByName( "global_newgame_template_base_items" )[ 1 ]:Remove()
@@ -36,11 +36,11 @@ function HL2C_InitPostEntity()
 	end
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
 
 
 -- Accept input
-function HL2C_AcceptInput( ent, input )
+function hl2cAcceptInput( ent, input )
 
 	if ( !game.SinglePlayer() && ( ( ent:GetName() == "doors_Airlock_Outside" ) || ( ent:GetName() == "inner_door" ) || ( ent:GetName() == "lab_exit_door_raven" ) || ( ent:GetName() == "lab_exit_door_raven2" ) || ( ent:GetName() == "airlock_south_door" ) || ( ent:GetName() == "airlock_south_doorb" ) ) && ( string.lower( input ) == "close" ) ) then
 	
@@ -68,4 +68,4 @@ function HL2C_AcceptInput( ent, input )
 	end
 
 end
-hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )

@@ -3,7 +3,7 @@ if ( game.SinglePlayer() ) then return end
 
 
 -- Entity was created
-function HL2C_EXTRAS.OnEntityCreated( ent )
+function hl2cExtras.OnEntityCreated( ent )
 
 	if ( !GetConVar( "hl2_episodic" ):GetBool() && ent:IsVehicle() && string.find( ent:GetClass(), "prop_vehicle_jeep" ) ) then
 	
@@ -20,20 +20,20 @@ function HL2C_EXTRAS.OnEntityCreated( ent )
 	end
 
 end
-hook.Add( "OnEntityCreated", "HL2C_EXTRAS.OnEntityCreated", HL2C_EXTRAS.OnEntityCreated )
+hook.Add( "OnEntityCreated", "hl2cExtras.OnEntityCreated", hl2cExtras.OnEntityCreated )
 
 
 -- Called if the player is allowed to enter the vehicle
-function HL2C_EXTRAS.CanPlayerEnterVehicle( ply, vehicle, role )
+function hl2cExtras.CanPlayerEnterVehicle( ply, vehicle, role )
 
 	ply:SetAllowWeaponsInVehicle( vehicle.allowWeapons )
 
 end
-hook.Add( "CanPlayerEnterVehicle", "HL2C_EXTRAS.CanPlayerEnterVehicle", HL2C_EXTRAS.CanPlayerEnterVehicle )
+hook.Add( "CanPlayerEnterVehicle", "hl2cExtras.CanPlayerEnterVehicle", hl2cExtras.CanPlayerEnterVehicle )
 
 
 -- Disable collisions with the vehicles
-function HL2C_EXTRAS.ShouldCollide( entA, entB )
+function hl2cExtras.ShouldCollide( entA, entB )
 
 	if ( IsValid( entA ) && IsValid( entB ) && ( ( entA:IsPlayer() && entA:InVehicle() && entA:GetAllowWeaponsInVehicle() && entB:IsVehicle() ) || ( entB:IsPlayer() && entB:InVehicle() && entB:GetAllowWeaponsInVehicle() && entA:IsVehicle() ) ) ) then
 	
@@ -42,4 +42,4 @@ function HL2C_EXTRAS.ShouldCollide( entA, entB )
 	end
 
 end
-hook.Add( "ShouldCollide", "HL2C_EXTRAS.ShouldCollide", HL2C_EXTRAS.ShouldCollide )
+hook.Add( "ShouldCollide", "hl2cExtras.ShouldCollide", hl2cExtras.ShouldCollide )

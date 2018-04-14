@@ -32,6 +32,26 @@ NPC_POINT_VALUES = {
 }
 
 
+-- Exclude these NPCs from lag compensation
+NPC_EXCLUDE_LAG_COMPENSATION = {
+	"npc_alyx",
+	"npc_barney",
+	"npc_barnacle",
+	"npc_breen",
+	"npc_citizen",
+	"npc_dog",
+	"npc_eli",
+	"npc_fisherman",
+	"npc_gman",
+	"npc_kleiner",
+	"npc_magnusson",
+	"npc_monk",
+	"npc_mossman",
+	"npc_rollermine",
+	"npc_vortigaunt"
+}
+
+
 -- Play Episode 1 after HL2 [0 = No, 1 = Yes] (Default: 0)
 PLAY_EPISODE_1 = 0
 

@@ -1,5 +1,5 @@
 -- Called when the player spawns
-function HL2C_EXTRAS.PlayerSpawn( ply )
+function hl2cExtras.PlayerSpawn( ply )
 
 	if ( restartWhenAllDead ) then restartWhenAllDead = false end
 
@@ -11,4 +11,4 @@ function HL2C_EXTRAS.PlayerSpawn( ply )
 	end
 
 end
-hook.Add( "PlayerSpawn", "HL2C_EXTRAS.PlayerSpawn", HL2C_EXTRAS.PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cExtras.PlayerSpawn", hl2cExtras.PlayerSpawn )

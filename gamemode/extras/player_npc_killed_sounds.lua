@@ -1,5 +1,5 @@
 -- Add npc killed scenes to a table
-HL2C_EXTRAS.NPC_KILLED_SOUNDS = {
+hl2cExtras.npcKilledSounds = {
 	"scenes/npc/$gender01/fantastic01.vcd",
 	"scenes/npc/$gender01/fantastic02.vcd",
 	"scenes/npc/$gender01/gotone01.vcd",
@@ -12,13 +12,13 @@ HL2C_EXTRAS.NPC_KILLED_SOUNDS = {
 
 
 -- Called when the player spawns
-function HL2C_EXTRAS.OnNPCKilled( npc, killer, weapon )
+function hl2cExtras.OnNPCKilled( npc, killer, weapon )
 
 	if ( ( math.random( 1, 3 ) == 1 ) && IsValid( killer ) && killer:IsPlayer() && killer:Alive() && ( killer:Team() == TEAM_ALIVE ) && table.HasValue( PLAYER_MODELS, killer:GetModel() ) ) then
 	
-		killer:PlayScene( table.Random( HL2C_EXTRAS.NPC_KILLED_SOUNDS ) )
+		killer:PlayScene( table.Random( hl2cExtras.npcKilledSounds ) )
 	
 	end
 
 end
-hook.Add( "OnNPCKilled", "HL2C_EXTRAS.OnNPCKilled", HL2C_EXTRAS.OnNPCKilled )
+hook.Add( "OnNPCKilled", "hl2cExtras.OnNPCKilled", hl2cExtras.OnNPCKilled )

@@ -236,6 +236,7 @@ function GM:Initialize()
 	language.Add( "npc_helicopter", "Helicopter" )
 	language.Add( "npc_bullseye", "Turret" )
 	language.Add( "prop_vehicle_apc", "APC" )
+	language.Add( "item_healthkit", "Health Kit" )
 	language.Add( "item_healthvial", "Health Vial" )
 	language.Add( "combine_mine", "Mine" )
 	language.Add( "npc_grenade_frag", "Grenade" )
@@ -408,7 +409,7 @@ function GM:PostPlayerDraw( ply )
 
 	if ( showNav && IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && ( ply != LocalPlayer() ) ) then
 	
-		local bonePosition = ply:GetBonePosition( ply:LookupBone( "ValveBiped.Bip01_Head1" ) )
+		local bonePosition = ply:GetBonePosition( ply:LookupBone( "ValveBiped.Bip01_Head1" ) || 0 )
 		cam.Start3D2D( bonePosition + Vector( 0, 0, 16 ), Angle( 0, EyeAngles().y - 90, 90 ), 0.25 )
 			draw.SimpleText( ply:Name(), "TargetID", 0, 0, self:GetTeamColor( ply ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 		cam.End3D2D()

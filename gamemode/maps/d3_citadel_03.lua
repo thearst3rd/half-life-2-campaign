@@ -8,7 +8,7 @@ TRIGGER_CHECKPOINT = {
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	game.ConsoleCommand( "physcannon_tracelength 850\n" )
 	game.ConsoleCommand( "physcannon_maxmass 850\n" )
@@ -19,11 +19,11 @@ function HL2C_InitPostEntity()
 	ents.FindByName( "global_newgame_template_local_items" )[ 1 ]:Remove()
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
 
 
 -- Accept input
-function HL2C_AcceptInput( ent, input )
+function hl2cAcceptInput( ent, input )
 
 	if ( ( ent:GetName() == "logic_weapon_strip_dissolve" ) && ( string.lower( input ) == "trigger" ) ) then
 	
@@ -48,11 +48,11 @@ function HL2C_AcceptInput( ent, input )
 	end
 
 end
-hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )
 
 
 -- Every frame or tick
-function HL2C_Think()
+function hl2cThink()
 
 	if ( SUPER_GRAVITY_GUN ) then
 	
@@ -99,4 +99,4 @@ function HL2C_Think()
 	end
 
 end
-hook.Add( "Think", "HL2C_Think", HL2C_Think )
+hook.Add( "Think", "hl2cThink", hl2cThink )

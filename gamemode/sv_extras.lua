@@ -1,5 +1,5 @@
 -- Store stuff in this table
-HL2C_EXTRAS = {}
+hl2cExtras = {}
 
 
 -- Create data folders
@@ -11,31 +11,31 @@ end
 
 
 -- Create load file
-function HL2C_EXTRAS.CreateLoadFile()
+function hl2cExtras.CreateLoadFile()
 
-	HL2C_EXTRAS.DATA = {}
+	hl2cExtras.data = {}
 
 	for k, v in pairs( file.Find( "gamemodes/half-life_2_campaign/gamemode/extras/*.lua", "GAME" ) ) do
 	
-		HL2C_EXTRAS.DATA[ v ] = "0"
+		hl2cExtras.data[ v ] = "0"
 	
 	end
 
-	file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( HL2C_EXTRAS.DATA ) )
+	file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( hl2cExtras.data ) )
 
 end
-concommand.Add( "hl2c_server_extras_refresh", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then HL2C_EXTRAS.CreateLoadFile() end end )
+concommand.Add( "hl2c_server_extras_refresh", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hl2cExtras.CreateLoadFile() end end )
 
 
 -- Create data files or start including files
 if ( !file.Exists( "half-life_2_campaign/extras/load.txt", "DATA" ) ) then
 
-	HL2C_EXTRAS.CreateLoadFile()
+	hl2cExtras.CreateLoadFile()
 
 else
 
-	HL2C_EXTRAS.DATA = util.KeyValuesToTable( file.Read( "half-life_2_campaign/extras/load.txt", "DATA" ) )
-	for k, v in pairs( HL2C_EXTRAS.DATA ) do
+	hl2cExtras.data = util.KeyValuesToTable( file.Read( "half-life_2_campaign/extras/load.txt", "DATA" ) )
+	for k, v in pairs( hl2cExtras.data ) do
 	
 		if ( tobool( v ) && file.Exists( "gamemodes/half-life_2_campaign/gamemode/extras/"..k, "GAME" ) ) then
 		
@@ -49,33 +49,33 @@ end
 
 
 -- Enable extra include
-function HL2C_EXTRAS.EnableExtraInclude( ply, args )
+function hl2cExtras.EnableExtraInclude( ply, args )
 
 	if ( string.lower( args ) == "all" ) then
 	
 		ply:PrintMessage( HUD_PRINTCONSOLE, "Enabling all extras...\n" )
 	
-		for k, v in pairs( HL2C_EXTRAS.DATA ) do
+		for k, v in pairs( hl2cExtras.data ) do
 		
 			if ( !tobool( v ) ) then
 			
-				HL2C_EXTRAS.DATA[ k ] = "1"
+				hl2cExtras.data[ k ] = "1"
 			
 			end
 		
 		end
 	
-		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( HL2C_EXTRAS.DATA ) )
+		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( hl2cExtras.data ) )
 	
 		return
 	
 	end
 
-	if ( HL2C_EXTRAS.DATA[ args ] && !tobool( HL2C_EXTRAS.DATA[ args ] ) ) then
+	if ( hl2cExtras.data[ args ] && !tobool( hl2cExtras.data[ args ] ) ) then
 	
-		HL2C_EXTRAS.DATA[ args ] = "1"
+		hl2cExtras.data[ args ] = "1"
 	
-		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( HL2C_EXTRAS.DATA ) )
+		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( hl2cExtras.data ) )
 	
 	else
 	
@@ -83,7 +83,7 @@ function HL2C_EXTRAS.EnableExtraInclude( ply, args )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "\n" )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "List of disabled extras:\n" )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "---------------------\n" )
-		for k, v in pairs( HL2C_EXTRAS.DATA ) do
+		for k, v in pairs( hl2cExtras.data ) do
 		
 			if ( !tobool( v ) ) then
 			
@@ -97,37 +97,37 @@ function HL2C_EXTRAS.EnableExtraInclude( ply, args )
 	end
 
 end
-concommand.Add( "hl2c_server_extras_enable", function( ply, cmd, argt, args ) if ( IsValid( ply ) && ply:IsAdmin() ) then HL2C_EXTRAS.EnableExtraInclude( ply, args ) end end )
+concommand.Add( "hl2c_server_extras_enable", function( ply, cmd, argt, args ) if ( IsValid( ply ) && ply:IsAdmin() ) then hl2cExtras.EnableExtraInclude( ply, args ) end end )
 
 
 -- Disable extra include
-function HL2C_EXTRAS.DisableExtraInclude( ply, args )
+function hl2cExtras.DisableExtraInclude( ply, args )
 
 	if ( string.lower( args ) == "all" ) then
 	
 		ply:PrintMessage( HUD_PRINTCONSOLE, "Disabling all extras...\n" )
 	
-		for k, v in pairs( HL2C_EXTRAS.DATA ) do
+		for k, v in pairs( hl2cExtras.data ) do
 		
 			if ( tobool( v ) ) then
 			
-				HL2C_EXTRAS.DATA[ k ] = "0"
+				hl2cExtras.data[ k ] = "0"
 			
 			end
 		
 		end
 	
-		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( HL2C_EXTRAS.DATA ) )
+		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( hl2cExtras.data ) )
 	
 		return
 	
 	end
 
-	if ( HL2C_EXTRAS.DATA[ args ] && tobool( HL2C_EXTRAS.DATA[ args ] ) ) then
+	if ( hl2cExtras.data[ args ] && tobool( hl2cExtras.data[ args ] ) ) then
 	
-		HL2C_EXTRAS.DATA[ args ] = "0"
+		hl2cExtras.data[ args ] = "0"
 	
-		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( HL2C_EXTRAS.DATA ) )
+		file.Write( "half-life_2_campaign/extras/load.txt", util.TableToKeyValues( hl2cExtras.data ) )
 	
 	else
 	
@@ -135,7 +135,7 @@ function HL2C_EXTRAS.DisableExtraInclude( ply, args )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "\n" )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "List of enabled extras:\n" )
 		ply:PrintMessage( HUD_PRINTCONSOLE, "---------------------\n" )
-		for k, v in pairs( HL2C_EXTRAS.DATA ) do
+		for k, v in pairs( hl2cExtras.data ) do
 		
 			if ( tobool( v ) ) then
 			
@@ -149,4 +149,4 @@ function HL2C_EXTRAS.DisableExtraInclude( ply, args )
 	end
 
 end
-concommand.Add( "hl2c_server_extras_disable", function( ply, cmd, argt, args ) if ( IsValid( ply ) && ply:IsAdmin() ) then HL2C_EXTRAS.DisableExtraInclude( ply, args ) end end )
+concommand.Add( "hl2c_server_extras_disable", function( ply, cmd, argt, args ) if ( IsValid( ply ) && ply:IsAdmin() ) then hl2cExtras.DisableExtraInclude( ply, args ) end end )

@@ -8,7 +8,7 @@ CITADEL_VEHICLE_VIEWCONTROL = true
 
 
 -- Player spawns
-function HL2C_PlayerSpawn( ply )
+function hl2cPlayerSpawn( ply )
 
 	ply:Give( "weapon_crowbar" )
 	ply:Give( "weapon_pistol" )
@@ -34,11 +34,11 @@ function HL2C_PlayerSpawn( ply )
 	end
 
 end
-hook.Add( "PlayerSpawn", "HL2C_PlayerSpawn", HL2C_PlayerSpawn )
+hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function HL2C_InitPostEntity()
+function hl2cInitPostEntity()
 
 	ents.FindByName( "global_newgame_template_base_items" )[ 1 ]:Remove()
 	ents.FindByName( "global_newgame_template_local_items" )[ 1 ]:Remove()
@@ -56,17 +56,17 @@ function HL2C_InitPostEntity()
 	end
 
 end
-hook.Add( "InitPostEntity", "HL2C_InitPostEntity", HL2C_InitPostEntity )
+hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
 
 
 -- Accept input
-function HL2C_AcceptInput( ent, input )
+function hl2cAcceptInput( ent, input )
 
 	if ( !game.SinglePlayer() && ( ent:GetName() == "track_dump" ) && ( string.lower( input ) == "enable" ) ) then
 	
 		CITADEL_VEHICLE_VIEWCONTROL = false
 	
-		if ( timer.Exists( "HL2C_UpdatePlayerPosition" ) ) then timer.Destroy( "HL2C_UpdatePlayerPosition" ) end
+		if ( timer.Exists( "hl2cUpdatePlayerPosition" ) ) then timer.Destroy( "hl2cUpdatePlayerPosition" ) end
 	
 		GAMEMODE:CreateSpawnPoint( Vector( 3882, 13388, 3950 ), 0 )
 	
@@ -83,13 +83,13 @@ function HL2C_AcceptInput( ent, input )
 	end
 
 end
-hook.Add( "AcceptInput", "HL2C_AcceptInput", HL2C_AcceptInput )
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )
 
 
 if ( !game.SinglePlayer() ) then
 
 	-- Update player position to the vehicle
-	function HL2C_UpdatePlayerPosition()
+	function hl2cUpdatePlayerPosition()
 	
 		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
@@ -102,6 +102,6 @@ if ( !game.SinglePlayer() ) then
 		end
 	
 	end
-	timer.Create( "HL2C_UpdatePlayerPosition", 0.1, 0, HL2C_UpdatePlayerPosition )
+	timer.Create( "hl2cUpdatePlayerPosition", 0.1, 0, hl2cUpdatePlayerPosition )
 
 end

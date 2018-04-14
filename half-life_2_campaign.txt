@@ -53,5 +53,13 @@
 			"type"		"CheckBox"
 			"default"	"1"
 		}
+	
+		7
+		{
+			"name"		"hl2c_server_lag_compensation"
+			"text"		"[SERVER] NPC Lag Compensation"
+			"type"		"CheckBox"
+			"default"	"1"
+		}
 	}
 }
