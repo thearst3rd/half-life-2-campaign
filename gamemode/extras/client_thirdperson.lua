@@ -26,7 +26,7 @@ if ( CLIENT ) then
 	-- Called every frame to calculate player views
 	function hl2cExtras.CalcView( ply, pos, ang, fov, zn, zf )
 	
-		if ( hl2c_cl_thirdperson:GetBool() && ply:Alive() && !ply:InVehicle() ) then
+		if ( hl2c_cl_thirdperson:GetBool() && ply:Alive() && !ply:InVehicle() && ( ply:GetViewEntity() == ply ) ) then
 		
 			local view = {}
 		

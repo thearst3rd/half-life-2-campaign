@@ -12,11 +12,20 @@ TRAINSTATION_VIEWCONTROL = true
 TRAINSTATION_LEAVEBARNEYDOOROPEN = false
 
 
+-- Player initial spawn
+function hl2cPlayerInitialSpawn( ply )
+
+	ply:SendLua( "table.RemoveByValue( GODLIKE_NPCS, \"npc_barney\" )" )
+
+end
+hook.Add( "PlayerInitialSpawn", "hl2cPlayerInitialSpawn", hl2cPlayerInitialSpawn )
+
+
 -- Player spawns
 function hl2cPlayerSpawn( ply )
 
 	ply:RemoveSuit()
-	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
+	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 100, 100 ) end end )
 
 	if ( TRAINSTATION_VIEWCONTROL ) then
 	
@@ -44,12 +53,14 @@ function hl2cInitPostEntity()
 	
 	end
 
+	table.RemoveByValue( GODLIKE_NPCS, "npc_barney" )
+
 end
 hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
 
 
 -- Accept input
-function hl2cAcceptInput( ent, input )
+function hl2cAcceptInput( ent, input, activator )
 
 	if ( ( ent:GetName() == "viewcontrol_final" ) && ( string.lower( input ) == "disable" ) ) then
 	

@@ -34,20 +34,36 @@ NPC_POINT_VALUES = {
 
 -- Exclude these NPCs from lag compensation
 NPC_EXCLUDE_LAG_COMPENSATION = {
+	"cycler",
+	"cycler_actor",
+	"generic_actor",
 	"npc_alyx",
 	"npc_barney",
 	"npc_barnacle",
 	"npc_breen",
+	"npc_bullseye",
 	"npc_citizen",
+	"npc_combinedropship",
+	"npc_combinegunship",
+	"npc_combine_camera",
+	"npc_cranedriver",
 	"npc_dog",
 	"npc_eli",
+	"npc_enemyfinder",
 	"npc_fisherman",
+	"npc_furniture",
 	"npc_gman",
+	"npc_helicopter",
 	"npc_kleiner",
 	"npc_magnusson",
 	"npc_monk",
 	"npc_mossman",
 	"npc_rollermine",
+	"npc_strider",
+	"npc_turret_ceiling",
+	"npc_turret_floor",
+	"npc_turret_ground",
+	"npc_vehicledriver",
 	"npc_vortigaunt"
 }
 

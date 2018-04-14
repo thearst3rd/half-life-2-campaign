@@ -71,7 +71,7 @@ function GM:HUDPaint()
 	
 	end
 
-	hook.Run( "HUDDrawTargetID" )
+	if ( !showNav ) then hook.Run( "HUDDrawTargetID" ) end
 	hook.Run( "HUDDrawPickupHistory" )
 	surface.SetDrawColor( 0, 0, 0, 0 )
 
@@ -409,10 +409,10 @@ function GM:PostPlayerDraw( ply )
 
 	if ( showNav && IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) && ( ply != LocalPlayer() ) ) then
 	
-		local bonePosition = ply:GetBonePosition( ply:LookupBone( "ValveBiped.Bip01_Head1" ) || 0 )
-		cam.Start3D2D( bonePosition + Vector( 0, 0, 16 ), Angle( 0, EyeAngles().y - 90, 90 ), 0.25 )
-			draw.SimpleText( ply:Name(), "TargetID", 0, 0, self:GetTeamColor( ply ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
-		cam.End3D2D()
+		local bonePosition = ply:GetBonePosition( ply:LookupBone( "ValveBiped.Bip01_Head1" ) || 0 ) + Vector( 0, 0, 16 )
+		cam.Start2D()
+			draw.SimpleText( ply:Name().." ("..ply:Health().."%)", "TargetIDSmall", bonePosition:ToScreen().x, bonePosition:ToScreen().y, self:GetTeamColor( ply ), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM )
+		cam.End2D()
 	
 	end
 

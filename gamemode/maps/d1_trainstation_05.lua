@@ -15,7 +15,7 @@ function hl2cPlayerSpawn( ply )
 	if ( TRAINSTATION_REMOVESUIT ) then
 	
 		ply:RemoveSuit()
-		timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
+		timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 100, 100 ) end end )
 	
 	end
 
