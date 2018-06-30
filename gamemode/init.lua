@@ -369,6 +369,13 @@ function GM:Initialize()
 	}
 	list.Set( "Vehicles", "Jalopy", jalopy )
 
+	-- Warning for Linux dedicated servers
+	if ( game.IsDedicated() && system.IsLinux() ) then
+	
+		print( "Warning: Linux dedicated servers may have issues with Half-Life 2 scenes! Expect things to break." )
+	
+	end
+
 end
 
 

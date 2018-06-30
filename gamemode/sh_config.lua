@@ -68,12 +68,12 @@ NPC_EXCLUDE_LAG_COMPENSATION = {
 }
 
 
--- Play Episode 1 after HL2 [0 = No, 1 = Yes] (Default: 0)
-PLAY_EPISODE_1 = 0
+-- Play Episode 1 after HL2 [false = No, true = Yes] (Default: false)
+PLAY_EPISODE_1 = false
 
 
--- Play Episode 2 after Episode 1 [0 = No, 1 = Yes] (Default: 0)
-PLAY_EPISODE_2 = 0
+-- Play Episode 2 after Episode 1 [false = No, true = Yes] (Default: false)
+PLAY_EPISODE_2 = false
 
 
 -- Seconds before the map is restarted (Default: 10)

@@ -58,19 +58,9 @@ function hl2cThink()
 
 	if ( SUPER_GRAVITY_GUN ) then
 	
-		for _, ent in pairs( ents.FindByClass( "ai_weapon_*" ) ) do
-		
-			if ( IsValid( ent ) && ent:IsWeapon() && ( !IsValid( ent:GetOwner() ) ) ) then
-			
-				ent:Remove()
-			
-			end
-		
-		end
-	
 		for _, ent in pairs( ents.FindByClass( "weapon_*" ) ) do
 		
-			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) ) then
+			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) && ( !IsValid( ent:GetOwner() ) || ( IsValid( ent:GetOwner() ) && ent:GetOwner():IsPlayer() ) ) ) then
 			
 				ent:Remove()
 			
