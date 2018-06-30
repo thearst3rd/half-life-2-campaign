@@ -198,7 +198,7 @@ function GM:EntityTakeDamage( ent, dmgInfo )
 	end
 
 	-- NPCs cannot be damaged by friends
-	if ( IsValid( ent ) && ent:IsNPC() && IsValid( attacker ) && ( ent:Disposition( attacker ) == D_LI ) ) then
+	if ( IsValid( ent ) && ent:IsNPC() && ( ent:GetClass() != "npc_turret_ground" ) && IsValid( attacker ) && ( ent:Disposition( attacker ) == D_LI ) ) then
 	
 		return true
 	

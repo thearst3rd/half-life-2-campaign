@@ -1,4 +1,4 @@
-NEXT_MAP = "d3_c17_09"
+NEXT_MAP = "d3_c17_10a"	-- d3_c17_09 crashes on the latest GMod version as of 01/07/18
 
 
 -- Player spawns
