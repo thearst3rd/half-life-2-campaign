@@ -4,6 +4,7 @@ resource.AddWorkshop( "283549412" )
 
 -- Send the required lua files to the client
 AddCSLuaFile( "cl_init.lua" )
+AddCSLuaFile( "cl_playermodels.lua" )
 AddCSLuaFile( "cl_scoreboard.lua" )
 AddCSLuaFile( "cl_scoreboard_playerlist.lua" )
 AddCSLuaFile( "cl_scoreboard_playerrow.lua" )
@@ -17,7 +18,7 @@ include( "sh_init.lua" )
 
 
 -- Include the configuration for this map
-if ( file.Exists( "gamemodes/half-life_2_campaign/gamemode/maps/"..game.GetMap()..".lua", "GAME" ) ) then
+if ( file.Exists( "half-life_2_campaign/gamemode/maps/"..game.GetMap()..".lua", "LUA" ) ) then
 
 	include( "maps/"..game.GetMap()..".lua" )
 
@@ -46,6 +47,7 @@ local hl2c_server_extras = CreateConVar( "hl2c_server_extras", 0, { FCVAR_NOTIFY
 local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, FCVAR_NOTIFY )
 local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, FCVAR_NOTIFY )
 local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, FCVAR_NOTIFY )
+local hl2c_shared_custom_playermodels = GetConVar( "hl2c_shared_custom_playermodels" )
 
 
 -- Include extras
@@ -133,7 +135,7 @@ end
 -- Called when the player is waiting to spawn
 function GM:PlayerDeathThink( ply )
 
-	if ( ply.NextSpawnTime && ( ply.NextSpawnTime > CurTime() ) ) then return end
+	if ( ply.NextSpawnTime && ( ply.NextSpawnTime > CurTime() ) ) then return; end
 
 	if ( ( ply:GetObserverMode() != spectatorMode ) && ( ply:IsBot() || ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) ) then
 	
@@ -229,10 +231,26 @@ function GM:EntityTakeDamage( ent, dmgInfo )
 end
 
 
+-- Clears the player data folder
+function GM:ClearPlayerDataFolder()
+
+	local tableFiles, tableFolders = file.Find( "half-life_2_campaign/players/*", "DATA" )
+	for k, v in ipairs( tableFiles ) do
+	
+		file.Delete( "half-life_2_campaign/players/"..v )
+	
+	end
+
+end
+
+
 -- Called by GoToNextLevel
 function GM:GrabAndSwitch()
 
 	changingLevel = true
+
+	-- Since the file can build up with useless files we should clear it
+	hook.Call( "ClearPlayerDataFolder", GAMEMODE )
 
 	-- Store player information
 	for _, ply in pairs( player.GetAll() ) do
@@ -246,7 +264,7 @@ function GM:GrabAndSwitch()
 		plyInfo.score = ply:Frags()
 		plyInfo.deaths = ply:Deaths()
 		plyInfo.model = ply.modelName
-		if ( IsValid( ply:GetActiveWeapon() ) ) then plyInfo.weapon = ply:GetActiveWeapon():GetClass() end
+		if ( IsValid( ply:GetActiveWeapon() ) ) then plyInfo.weapon = ply:GetActiveWeapon():GetClass(); end
 	
 		if ( plyWeapons && #plyWeapons > 0 ) then
 		
@@ -519,7 +537,7 @@ function GM:UpdateAmmoTables()
 	}
 
 end
-concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then GAMEMODE:UpdateAmmoTables() end end )
+concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "UpdateAmmoTables", GAMEMODE ) end end )
 
 
 -- Called automatically or by the console command
@@ -540,7 +558,7 @@ function GM:NextMap()
 	timer.Simple( NEXT_MAP_TIME, function() self:GrabAndSwitch() end )
 
 end
-concommand.Add( "hl2c_next_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then GAMEMODE:NextMap() end end )
+concommand.Add( "hl2c_next_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "NextMap", GAMEMODE ) end end )
 
 
 -- Called when an NPC dies
@@ -783,6 +801,7 @@ end
 -- Set the player model
 function GM:PlayerSetModel( ply )
 
+	-- Stores the model as a variable part of the player
 	if ( ply.info && ply.info.model ) then
 	
 		ply.modelName = ply.info.model
@@ -791,7 +810,7 @@ function GM:PlayerSetModel( ply )
 	
 		local modelName = player_manager.TranslatePlayerModel( ply:GetInfo( "cl_playermodel" ) )
 	
-		if ( modelName && table.HasValue( PLAYER_MODELS, string.lower( modelName ) ) ) then
+		if ( hl2c_shared_custom_playermodels:GetBool() || ( modelName && table.HasValue( PLAYER_MODELS, string.lower( modelName ) ) ) ) then
 		
 			ply.modelName = modelName
 		
@@ -803,20 +822,44 @@ function GM:PlayerSetModel( ply )
 	
 	end
 
-	if ( ply:IsSuitEquipped() ) then
+	if ( !hl2c_shared_custom_playermodels:GetBool() ) then
 	
-		ply.modelName = string.gsub( string.lower( ply.modelName ), "group01", "group03" )
-	
-	else
-	
-		ply.modelName = string.gsub( string.lower( ply.modelName ), "group03", "group01" )
+		if ( ply:IsSuitEquipped() ) then
+		
+			ply.modelName = string.gsub( string.lower( ply.modelName ), "group01", "group03" )
+		
+		else
+		
+			ply.modelName = string.gsub( string.lower( ply.modelName ), "group03", "group01" )
+		
+		end
 	
 	end
 
+	-- Precache and set the model
 	util.PrecacheModel( ply.modelName )
 	ply:SetModel( ply.modelName )
 	ply:SetupHands()
 
+	-- Skin, modelgroups and player color are primarily a custom playermodel thing
+	if ( hl2c_shared_custom_playermodels:GetBool() ) then
+	
+		ply:SetSkin( ply:GetInfoNum( "cl_playerskin", 0 ) )
+	
+		ply.modelGroups = ply:GetInfo( "cl_playerbodygroups" )
+		if ( ply.modelGroups == nil ) then ply.modelGroups = "" end
+		ply.modelGroups = string.Explode( " ", ply.modelGroups )
+		for k = 0, ( ply:GetNumBodyGroups() - 1 ) do
+		
+			ply:SetBodygroup( k, ( tonumber( ply.modelGroups[ k + 1 ] ) || 0 ) )
+		
+		end
+	
+		ply:SetPlayerColor( Vector( ply:GetInfo( "cl_playercolor" ) ) )
+	
+	end
+
+	-- A hook for those who want to call something after the player model is set
 	hook.Call( "PostPlayerSetModel", GAMEMODE, ply )
 
 end
@@ -852,9 +895,9 @@ function GM:PlayerSpawn( ply )
 	ply:ShouldDropWeapon( restartWhenAllDead )
 	ply:AllowFlashlight( true )
 	ply:SetCrouchedWalkSpeed( 0.3 )
-	GAMEMODE:SetPlayerSpeed( ply, 190, 320 )
-	GAMEMODE:PlayerSetModel( ply )
-	GAMEMODE:PlayerLoadout( ply )
+	hook.Call( "SetPlayerSpeed", GAMEMODE, ply, 190, 320 )
+	hook.Call( "PlayerSetModel", GAMEMODE, ply )
+	hook.Call( "PlayerLoadout", GAMEMODE, ply )
 
 	-- Set stuff from last level
 	if ( ply.info ) then
@@ -952,7 +995,7 @@ function GM:RestartMap()
 	timer.Simple( RESTART_MAP_TIME, function() game.ConsoleCommand( "changelevel "..game.GetMap().."\n" ) end )
 
 end
-concommand.Add( "hl2c_restart_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then GAMEMODE:RestartMap() end end )
+concommand.Add( "hl2c_restart_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "RestartMap", GAMEMODE ) end end )
 
 
 -- Called every time a player does damage to an npc
@@ -1113,12 +1156,12 @@ function GM:Think()
 	-- Restart the map if all players are dead
 	if ( restartWhenAllDead && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
 	
-		GAMEMODE:RestartMap()
+		hook.Call( "RestartMap", GAMEMODE )
 	
 	end
 
 	-- For each player
-	for _, ply in pairs( player.GetAll() ) do
+	for _, ply in ipairs( player.GetAll() ) do
 	
 		if ( IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) ) then
 		
@@ -1243,7 +1286,7 @@ function GM:Think()
 		game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
 	
 		-- Do not update all the time
-		updateDifficulty = CurTime() + 5
+		updateDifficulty = CurTime() + 2
 	
 	end
 

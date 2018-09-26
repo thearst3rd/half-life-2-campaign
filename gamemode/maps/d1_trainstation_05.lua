@@ -15,7 +15,7 @@ function hl2cPlayerSpawn( ply )
 	if ( TRAINSTATION_REMOVESUIT ) then
 	
 		ply:RemoveSuit()
-		timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 100, 100 ) end end )
+		timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
 	
 	end
 
@@ -30,6 +30,7 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Entity removed
+local hl2c_shared_custom_playermodels = GetConVar( "hl2c_shared_custom_playermodels" )
 function hl2cEntityRemoved( ent )
 
 	if ( ent:GetClass() == "item_suit" ) then
@@ -38,7 +39,7 @@ function hl2cEntityRemoved( ent )
 		for _, ply in pairs( player.GetAll() ) do
 		
 			ply:EquipSuit()
-			ply:SetModel( string.gsub( ply:GetModel(), "group01", "group03" ) )
+			if ( !hl2c_shared_custom_playermodels:GetBool() ) then ply:SetModel( string.gsub( ply:GetModel(), "group01", "group03" ) ); end
 			ply:SetupHands()
 			GAMEMODE:SetPlayerSpeed( ply, 190, 320 )
 		

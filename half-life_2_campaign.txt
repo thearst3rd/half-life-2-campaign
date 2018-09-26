@@ -61,5 +61,13 @@
 			"type"		"CheckBox"
 			"default"	"1"
 		}
+	
+		8
+		{
+			"name"		"hl2c_shared_custom_playermodels"
+			"text"		"[SHARED] Custom Player Models"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
 	}
 }

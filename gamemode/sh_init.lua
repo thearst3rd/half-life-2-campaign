@@ -8,6 +8,19 @@ GM.Name = "HALF-LIFE 2: Campaign"
 GM.Author = "AMT (ported and improved by D4UNKN0WNM4N2010)"
 
 
+-- Create console variables to make these config vars easier to access
+local hl2c_shared_custom_playermodels = nil
+if ( SERVER ) then
+
+	hl2c_shared_custom_playermodels = CreateConVar( "hl2c_shared_custom_playermodels", 0, { FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+
+elseif ( CLIENT ) then
+
+	hl2c_shared_custom_playermodels = CreateConVar( "hl2c_shared_custom_playermodels", 0, { FCVAR_REPLICATED, FCVAR_NOTIFY } )
+
+end
+
+
 -- Constants
 FRIENDLY_NPCS = {
 	"npc_citizen"

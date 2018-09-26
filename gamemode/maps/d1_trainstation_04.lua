@@ -12,7 +12,7 @@ TRAINSTATION_VIEWCONTROL = false
 function hl2cPlayerSpawn( ply )
 
 	ply:RemoveSuit()
-	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 100, 100 ) end end )
+	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
 
 	if ( TRAINSTATION_VIEWCONTROL ) then
 	

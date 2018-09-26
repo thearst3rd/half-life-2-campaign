@@ -1,5 +1,6 @@
 -- Include the required lua files
 include( "sh_init.lua" )
+include( "cl_playermodels.lua" )
 include( "cl_scoreboard.lua" )
 
 
@@ -15,12 +16,6 @@ if ( !file.IsDir( "half-life_2_campaign/client", "DATA" ) ) then
 	file.CreateDir( "half-life_2_campaign/client" )
 
 end
-
-
--- Create some client console variables
-CreateConVar( "cl_playercolor", "0.24 0.34 0.41", { FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD }, "The value is a Vector - so between 0-1 - not between 0-255" )
-CreateConVar( "cl_playerskin", "0", { FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD }, "The skin to use, if the model has any" )
-CreateConVar( "cl_playerbodygroups", "0", { FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD }, "The bodygroups to use, if the model has any" )
 
 
 -- Client only constants
@@ -256,6 +251,13 @@ function GM:PlayerBindPress( ply, bind, down )
 	if ( ( bind == "+menu" ) && down ) then
 	
 		RunConsoleCommand( "lastinv" )
+		return true
+	
+	end
+
+	if ( ( bind == "+menu_context" ) && down ) then
+	
+		hook.Call( "OpenPlayerModelMenu", GAMEMODE )
 		return true
 	
 	end
