@@ -1,7 +1,7 @@
 -- Dedicated to Viewmodel swaying
 
 -- Console variables
-local cl_wpn_sway_hl2 = CreateClientConVar( "cl_wpn_sway_hl2", 1, false, false )
+local cl_wpn_sway_hl2 = CreateClientConVar( "cl_wpn_sway_hl2", 1, true, false )
 
 -- Local variables
 local m_vecLastFacing = Vector( 0, 0, 0 )
