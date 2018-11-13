@@ -1,21 +1,20 @@
 -- Send the required resources to the client
 resource.AddWorkshop( "283549412" )
 
-
 -- Send the required lua files to the client
+AddCSLuaFile( "cl_calcview.lua" )
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "cl_playermodels.lua" )
 AddCSLuaFile( "cl_scoreboard.lua" )
 AddCSLuaFile( "cl_scoreboard_playerlist.lua" )
 AddCSLuaFile( "cl_scoreboard_playerrow.lua" )
+AddCSLuaFile( "cl_viewmodel.lua" )
 AddCSLuaFile( "sh_config.lua" )
 AddCSLuaFile( "sh_init.lua" )
 AddCSLuaFile( "sh_player.lua" )
 
-
 -- Include the required lua files
 include( "sh_init.lua" )
-
 
 -- Include the configuration for this map
 if ( file.Exists( "half-life_2_campaign/gamemode/maps/"..game.GetMap()..".lua", "LUA" ) ) then
@@ -23,7 +22,6 @@ if ( file.Exists( "half-life_2_campaign/gamemode/maps/"..game.GetMap()..".lua", 
 	include( "maps/"..game.GetMap()..".lua" )
 
 end
-
 
 -- Create data folders
 if ( !file.IsDir( "half-life_2_campaign", "DATA" ) ) then
@@ -43,19 +41,12 @@ end
 local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, FCVAR_NOTIFY )
 local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVAR_NOTIFY )
 local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_extras = CreateConVar( "hl2c_server_extras", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, FCVAR_NOTIFY )
-local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, FCVAR_NOTIFY )
-local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, FCVAR_NOTIFY )
-local hl2c_shared_custom_playermodels = GetConVar( "hl2c_shared_custom_playermodels" )
-
-
--- Include extras
-if ( hl2c_server_extras:GetBool() ) then
-
-	include( "sv_extras.lua" )
-
-end
+local hl2c_server_custom_playermodels = CreateConVar( "hl2c_server_custom_playermodels", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_player_respawning = CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_jeep_passenger_seat = CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 
 
 -- Precache all the player models ahead of time
@@ -117,7 +108,7 @@ function GM:DoPlayerDeath( ply, attacker, dmgInfo )
 	ply.deathPos = ply:EyePos()
 
 	-- Add to deadPlayers table to prevent respawning on re-connect
-	if ( !table.HasValue( deadPlayers, ply:SteamID() ) ) then
+	if ( !hl2c_server_player_respawning:GetBool() && !table.HasValue( deadPlayers, ply:SteamID() ) ) then
 	
 		table.insert( deadPlayers, ply:SteamID() )
 	
@@ -129,6 +120,9 @@ function GM:DoPlayerDeath( ply, attacker, dmgInfo )
 	ply:SetTeam( TEAM_DEAD )
 	ply:AddDeaths( 1 )
 
+	-- Clear player info
+	ply.info = nil
+
 end
 
 
@@ -137,11 +131,11 @@ function GM:PlayerDeathThink( ply )
 
 	if ( ply.NextSpawnTime && ( ply.NextSpawnTime > CurTime() ) ) then return; end
 
-	if ( ( ply:GetObserverMode() != spectatorMode ) && ( ply:IsBot() || ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) ) then
+	if ( ( ply:GetObserverMode() != OBS_MODE_ROAMING ) && ( ply:IsBot() || ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) ) then
 	
-		if ( restartWhenAllDead ) then
+		if ( !hl2c_server_player_respawning:GetBool() ) then
 		
-			ply:Spectate( spectatorMode )
+			ply:Spectate( OBS_MODE_ROAMING )
 			ply:SetPos( ply.deathPos )
 			ply:SetNoTarget( true )
 		
@@ -159,9 +153,25 @@ end
 -- Called when entities are created
 function GM:OnEntityCreated( ent )
 
+	-- NPC Lag Compensation
 	if ( hl2c_server_lag_compensation:GetBool() && ent:IsNPC() && !table.HasValue( NPC_EXCLUDE_LAG_COMPENSATION, ent:GetClass() ) ) then
 	
 		ent:SetLagCompensated( true )
+	
+	end
+
+	-- Vehicle Passenger Seating
+	if ( hl2c_server_jeep_passenger_seat:GetBool() && !GetConVar( "hl2_episodic" ):GetBool() && ent:IsVehicle() && string.find( ent:GetClass(), "prop_vehicle_jeep" ) ) then
+	
+		ent.passengerSeat = ents.Create( "prop_vehicle_prisoner_pod" )
+		ent.passengerSeat:SetPos( ent:LocalToWorld( Vector( 21, -32, 18 ) ) )
+		ent.passengerSeat:SetAngles( ent:LocalToWorldAngles( Angle( 0, -3.5, 0 ) ) )
+		ent.passengerSeat:SetModel( "models/nova/jeep_seat.mdl" )
+		ent.passengerSeat:SetMoveType( MOVETYPE_NONE )
+		ent.passengerSeat:SetParent( ent )
+		ent.passengerSeat:Spawn()
+		ent.passengerSeat:Activate()
+		ent.passengerSeat.allowWeapons = true
 	
 	end
 
@@ -305,8 +315,6 @@ function GM:Initialize()
 	checkpointPositions = {}
 	nextAreaOpenTime = 0
 	startingWeapons = {}
-	restartWhenAllDead = true
-	spectatorMode = OBS_MODE_ROAMING
 	flashlightDrainsAUX = true
 
 	-- Network strings
@@ -318,6 +326,7 @@ function GM:Initialize()
 	util.AddNetworkString( "ShowTeam" )
 	util.AddNetworkString( "UpdateEnergy" )
 	util.AddNetworkString( "DrowningEffect" )
+	util.AddNetworkString( "UpdatePlayerModel" )
 
 	-- We want regular fall damage and the ai to attack players and stuff
 	game.ConsoleCommand( "ai_disabled 0\n" )
@@ -537,7 +546,7 @@ function GM:UpdateAmmoTables()
 	}
 
 end
-concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "UpdateAmmoTables", GAMEMODE ) end end )
+concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "UpdateAmmoTables", GAMEMODE ); end end )
 
 
 -- Called automatically or by the console command
@@ -558,7 +567,7 @@ function GM:NextMap()
 	timer.Simple( NEXT_MAP_TIME, function() self:GrabAndSwitch() end )
 
 end
-concommand.Add( "hl2c_next_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "NextMap", GAMEMODE ) end end )
+concommand.Add( "hl2c_next_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "NextMap", GAMEMODE ); end end )
 
 
 -- Called when an NPC dies
@@ -590,7 +599,7 @@ function GM:OnNPCKilled( npc, killer, weapon )
 	
 		if ( table.HasValue( GODLIKE_NPCS, npc:GetClass() ) ) then
 		
-			if ( IsValid( killer ) && killer:IsPlayer() ) then game.KickID( killer:UserID(), "You killed an important NPC actor!" ) end
+			if ( IsValid( killer ) && killer:IsPlayer() ) then game.KickID( killer:UserID(), "You killed an important NPC actor!" ); end
 			GAMEMODE:RestartMap()
 		
 		end
@@ -601,7 +610,7 @@ function GM:OnNPCKilled( npc, killer, weapon )
 	if ( IsValid( weapon ) && ( killer == weapon ) && ( weapon:IsPlayer() || weapon:IsNPC() ) ) then
 	
 		weapon = weapon:GetActiveWeapon() 
-		if ( !IsValid( killer ) ) then weapon = killer end 
+		if ( !IsValid( killer ) ) then weapon = killer; end 
 	
 	end 
 
@@ -610,8 +619,8 @@ function GM:OnNPCKilled( npc, killer, weapon )
  	local killerClass = "World" 
 
 	-- Change to actual values if not default
- 	if ( IsValid( weapon ) ) then weaponClass = weapon:GetClass() end 
- 	if ( IsValid( killer ) ) then killerClass = killer:GetClass() end 
+ 	if ( IsValid( weapon ) ) then weaponClass = weapon:GetClass(); end 
+ 	if ( IsValid( killer ) ) then killerClass = killer:GetClass(); end 
 
 	-- Send a message
 	if ( IsValid( killer ) && killer:IsPlayer() ) then
@@ -717,6 +726,7 @@ function GM:PlayerInitialSpawn( ply )
 	if ( #checkpointPositions > 0 ) then
 	
 		net.Start( "PlayerInitialSpawn")
+			net.WriteBool( hl2c_server_custom_playermodels:GetBool() )
 			net.WriteVector( checkpointPositions[ 1 ] )
 		net.Send( ply )
 	
@@ -810,7 +820,7 @@ function GM:PlayerSetModel( ply )
 	
 		local modelName = player_manager.TranslatePlayerModel( ply:GetInfo( "cl_playermodel" ) )
 	
-		if ( hl2c_shared_custom_playermodels:GetBool() || ( modelName && table.HasValue( PLAYER_MODELS, string.lower( modelName ) ) ) ) then
+		if ( hl2c_server_custom_playermodels:GetBool() || ( modelName && table.HasValue( PLAYER_MODELS, string.lower( modelName ) ) ) ) then
 		
 			ply.modelName = modelName
 		
@@ -822,7 +832,7 @@ function GM:PlayerSetModel( ply )
 	
 	end
 
-	if ( !hl2c_shared_custom_playermodels:GetBool() ) then
+	if ( !hl2c_server_custom_playermodels:GetBool() ) then
 	
 		if ( ply:IsSuitEquipped() ) then
 		
@@ -842,7 +852,7 @@ function GM:PlayerSetModel( ply )
 	ply:SetupHands()
 
 	-- Skin, modelgroups and player color are primarily a custom playermodel thing
-	if ( hl2c_shared_custom_playermodels:GetBool() ) then
+	if ( hl2c_server_custom_playermodels:GetBool() ) then
 	
 		ply:SetSkin( ply:GetInfoNum( "cl_playerskin", 0 ) )
 	
@@ -870,9 +880,9 @@ function GM:PlayerSpawn( ply )
 
 	player_manager.SetPlayerClass( ply, "player_default" )
 
-	if ( ply:Team() == TEAM_DEAD ) then
+	if ( !hl2c_server_player_respawning:GetBool() && ( ply:Team() == TEAM_DEAD ) ) then
 	
-		ply:Spectate( spectatorMode )
+		ply:Spectate( OBS_MODE_ROAMING )
 		ply:SetPos( ply.deathPos )
 		ply:SetNoTarget( true )
 	
@@ -888,11 +898,11 @@ function GM:PlayerSpawn( ply )
 	ply.nextSetHealth = 0
 	ply:SetNWBool( "sprintDisabled", false )
 	ply.vulnerable = false
-	timer.Simple( VULNERABLE_TIME, function() if IsValid( ply ) then ply.vulnerable = true end end )
+	timer.Simple( VULNERABLE_TIME, function() if IsValid( ply ) then ply.vulnerable = true; end end )
 
 	-- Player statistics
 	ply:UnSpectate()
-	ply:ShouldDropWeapon( restartWhenAllDead )
+	ply:ShouldDropWeapon( !hl2c_server_player_respawning:GetBool() )
 	ply:AllowFlashlight( true )
 	ply:SetCrouchedWalkSpeed( 0.3 )
 	hook.Call( "SetPlayerSpeed", GAMEMODE, ply, 190, 320 )
@@ -940,6 +950,9 @@ function GM:PlayerSpawn( ply )
 	
 	end
 
+	-- If we made it this far we might might not be even dead
+	ply:SetTeam( TEAM_ALIVE )
+
 end
 
 
@@ -971,6 +984,17 @@ function GM:PlayerUse( ply, ent )
 end
 
 
+-- Called to control whether a player can enter the vehicle or not
+function GM:CanPlayerEnterVehicle( ply, vehicle, role )
+
+	-- Used for passenger seating
+	ply:SetAllowWeaponsInVehicle( vehicle.allowWeapons )
+
+	return true
+
+end
+
+
 -- Called automatically and by the console command
 function GM:RestartMap()
 
@@ -995,7 +1019,7 @@ function GM:RestartMap()
 	timer.Simple( RESTART_MAP_TIME, function() game.ConsoleCommand( "changelevel "..game.GetMap().."\n" ) end )
 
 end
-concommand.Add( "hl2c_restart_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "RestartMap", GAMEMODE ) end end )
+concommand.Add( "hl2c_restart_map", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "RestartMap", GAMEMODE ); end end )
 
 
 -- Called every time a player does damage to an npc
@@ -1154,7 +1178,7 @@ end
 function GM:Think()
 
 	-- Restart the map if all players are dead
-	if ( restartWhenAllDead && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
+	if ( !hl2c_server_player_respawning:GetBool() && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
 	
 		hook.Call( "RestartMap", GAMEMODE )
 	
@@ -1318,8 +1342,21 @@ function GM:WeaponEquip( wep )
 end
 
 
+-- Tell the game to update the player's playermodel
+local function UpdatePlayerModel( len, ply )
+
+	if ( IsValid( ply ) && ( ply:Team() == TEAM_ALIVE ) ) then
+	
+		hook.Call( "PlayerSetModel", GAMEMODE, ply )
+	
+	end
+
+end
+net.Receive( "UpdatePlayerModel", UpdatePlayerModel )
+
+
 -- Dynamic skill level console variable was changed
-function DynamicSkillToggleCallback( name, old, new )
+local function DynamicSkillToggleCallback( name, old, new )
 
 	if ( !hl2c_server_dynamic_skill_level:GetBool() ) then
 	

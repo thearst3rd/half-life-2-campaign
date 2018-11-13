@@ -32,8 +32,8 @@
 	
 		4
 		{
-			"name"		"hl2c_server_extras"
-			"text"		"[SERVER] Enable Extras"
+			"name"		"hl2c_server_custom_playermodels"
+			"text"		"[SERVER] Custom Player Models"
 			"type"		"CheckBox"
 			"default"	"0"
 		}
@@ -64,8 +64,16 @@
 	
 		8
 		{
-			"name"		"hl2c_shared_custom_playermodels"
-			"text"		"[SHARED] Custom Player Models"
+			"name"		"hl2c_server_player_respawning"
+			"text"		"[SERVER] Player Respawning"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+	
+		9
+		{
+			"name"		"hl2c_server_jeep_passenger_seat"
+			"text"		"[SERVER] Jeep Passenger Seat"
 			"type"		"CheckBox"
 			"default"	"0"
 		}

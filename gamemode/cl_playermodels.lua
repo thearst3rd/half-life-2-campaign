@@ -8,19 +8,20 @@ local cl_playerbodygroups = CreateConVar( "cl_playerbodygroups", "0", { FCVAR_AR
 -- Default animations
 local default_animations = { "idle_all_01", "menu_walk" }
 
+-- Global variable that defines whether the custom playermodel menu is available or not
+CUSTOM_PLAYERMODEL_MENU_ENABLED = false
+
 
 -- Opens the menu
-local hl2c_shared_custom_playermodels = GetConVar( "hl2c_shared_custom_playermodels" )
 function GM:OpenPlayerModelMenu()
 
 	-- Prevent opening the menu
-	if ( !hl2c_shared_custom_playermodels:GetBool() ) then
+	if ( !CUSTOM_PLAYERMODEL_MENU_ENABLED ) then
 	
-		chat.AddText( Color( 255, 0, 0 ), "Custom playermodels aren\'t enabled on this server!" )
+		chat.AddText( Color( 255, 0, 0 ), "Custom playermodels aren't enabled on this server!" )
 		return
 	
 	end
-
 
 	-- Window frame
 	local window = vgui.Create( "DFrame" )
@@ -158,6 +159,9 @@ function GM:OpenPlayerModelMenu()
 		
 		end
 	
+		net.Start( "UpdatePlayerModel" )
+		net.SendToServer()
+	
 	end
 
 	-- Rebuilds the body group tab
@@ -228,6 +232,9 @@ function GM:OpenPlayerModelMenu()
 	
 		plycol:SetVector( Vector( GetConVarString( "cl_playercolor" ) ) )
 	
+		net.Start( "UpdatePlayerModel" )
+		net.SendToServer()
+	
 		PlayPreviewAnimation( mdl, model )
 		RebuildBodygroupTab()
 	
@@ -237,6 +244,9 @@ function GM:OpenPlayerModelMenu()
 	local function UpdateFromControls()
 	
 		RunConsoleCommand( "cl_playercolor", tostring( plycol:GetVector() ) )
+	
+		net.Start( "UpdatePlayerModel" )
+		net.SendToServer()
 	
 	end
 
