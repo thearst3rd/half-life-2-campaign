@@ -30,7 +30,7 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Entity removed
-local hl2c_shared_custom_playermodels = GetConVar( "hl2c_shared_custom_playermodels" )
+local hl2c_server_custom_playermodels = GetConVar( "hl2c_server_custom_playermodels" )
 function hl2cEntityRemoved( ent )
 
 	if ( ent:GetClass() == "item_suit" ) then
@@ -39,7 +39,7 @@ function hl2cEntityRemoved( ent )
 		for _, ply in pairs( player.GetAll() ) do
 		
 			ply:EquipSuit()
-			if ( !hl2c_shared_custom_playermodels:GetBool() ) then ply:SetModel( string.gsub( ply:GetModel(), "group01", "group03" ) ); end
+			if ( !hl2c_server_custom_playermodels:GetBool() ) then ply:SetModel( string.gsub( ply:GetModel(), "group01", "group03" ) ); end
 			ply:SetupHands()
 			GAMEMODE:SetPlayerSpeed( ply, 190, 320 )
 		

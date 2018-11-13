@@ -1,7 +1,9 @@
 -- Include the required lua files
 include( "sh_init.lua" )
+include( "cl_calcview.lua" )
 include( "cl_playermodels.lua" )
 include( "cl_scoreboard.lua" )
+include( "cl_viewmodel.lua" )
 
 
 -- Create data folders
@@ -319,12 +321,18 @@ net.Receive( "NextMap", NextMap )
 -- Called when player spawns for the first time
 function PlayerInitialSpawn( len )
 
+	-- Shows the help menu
 	if ( !file.Exists( "half-life_2_campaign/client/shown_help.txt", "DATA" ) ) then
 	
 		ShowHelp( 0 )
 		file.Write( "half-life_2_campaign/client/shown_help.txt", "You've viewed the help menu in Half-Life 2 Campaign." )
 	
 	end
+
+	-- Enable or disable the custom playermodel menu
+	CUSTOM_PLAYERMODEL_MENU_ENABLED = net.ReadBool()
+
+	-- Transmit the active checkpoint
 	checkpointPosition = net.ReadVector()
 
 end
