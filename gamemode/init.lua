@@ -409,14 +409,6 @@ end
 -- Called as soon as all map entities have been spawned 
 function GM:InitPostEntity()
 
-	-- Return to d1_trainstation_01 if no NEXT_MAP specified
-	if ( !NEXT_MAP ) then
-	
-		game.ConsoleCommand( "changelevel d1_trainstation_01\n" )
-		return
-	
-	end
-
 	-- Remove old spawn points
 	for _, ips in pairs( ents.FindByClass( "info_player_start" ) ) do
 	
@@ -800,12 +792,17 @@ end
 
 
 -- Select the player spawn
-function GM:PlayerSelectSpawn( ply )
+function HL2CPlayerSelectSpawn( ply )
 
-	local spawnPoints = ents.FindByClass( "info_player_start" )
-	return spawnPoints[ #spawnPoints ]
+	if ( INFO_PLAYER_SPAWN || TRIGGER_CHECKPOINT ) then
+	
+		local spawnPoints = ents.FindByClass( "info_player_start" )
+		return spawnPoints[ #spawnPoints ]
+	
+	end
 
-end 
+end
+hook.Add( "PlayerSelectSpawn", "HL2CPlayerSelectSpawn", HL2CPlayerSelectSpawn )
 
 
 -- Set the player model
