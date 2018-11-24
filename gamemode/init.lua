@@ -788,7 +788,15 @@ function GM:PlayerNoClip( ply )
 
 	return ( ply:IsAdmin() && hl2c_admin_noclip:GetBool() )
 
-end 
+end
+
+
+-- Returns whether the spawnpoint is suitable or not
+function GM:IsSpawnpointSuitable( ply, spawnpointEnt, bMakeSuitable )
+
+	return true
+
+end
 
 
 -- Select the player spawn
