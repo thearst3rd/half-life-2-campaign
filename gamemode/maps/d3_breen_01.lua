@@ -4,8 +4,6 @@ NEXT_MAP_PERCENT = 1
 
 RESET_WEAPONS = true
 
-SUPER_GRAVITY_GUN = true
-
 TRIGGER_DELAYMAPLOAD = { Vector( 14095, 15311, 14964 ), Vector( 13702, 14514, 15000 ) }
 
 if ( PLAY_EPISODE_1 ) then
@@ -45,6 +43,8 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 -- Initialize entities
 function hl2cInitPostEntity()
+
+	SetGlobalBool( "SUPER_GRAVITY_GUN", true )
 
 	game.ConsoleCommand( "physcannon_tracelength 850\n" )
 	game.ConsoleCommand( "physcannon_maxmass 850\n" )
@@ -168,33 +168,23 @@ hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )
 -- Every frame or tick
 function hl2cThink()
 
-	if ( SUPER_GRAVITY_GUN ) then
+	if ( GetGlobalBool( "SUPER_GRAVITY_GUN" ) ) then
+	
+		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
+		
+			if ( IsValid( ent ) && ent:IsWeapon() ) then
+			
+				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ); end
+			
+			end
+		
+		end
 	
 		for _, ent in pairs( ents.FindByClass( "weapon_*" ) ) do
 		
 			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) && ( !IsValid( ent:GetOwner() ) || ( IsValid( ent:GetOwner() ) && ent:GetOwner():IsPlayer() ) ) ) then
 			
 				ent:Remove()
-			
-			end
-		
-		end
-	
-		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
-		
-			if ( IsValid( ent ) && ent:IsWeapon() ) then
-			
-				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ) end
-			
-			end
-		
-		end
-	
-		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
-		
-			if ( IsValid( ply ) && ply:Alive() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetClass() == "weapon_physcannon" ) ) then
-			
-				if ( ply:GetViewModel():GetModel() != "models/weapons/c_superphyscannon.mdl" ) then ply:GetViewModel():SetModel( "models/weapons/c_superphyscannon.mdl" ) end
 			
 			end
 		

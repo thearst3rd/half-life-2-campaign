@@ -89,7 +89,7 @@ function GM:HUDPaint()
 		
 			surface.SetTexture( surface.GetTextureID( "hl2c_nav_marker" ) )
 			surface.DrawTexturedRect( checkpointPositionScreen.x - 14, checkpointPositionScreen.y - 14, 28, 28 )
-			draw.DrawText( tostring( checkpointDistance ).." m", "arial16", checkpointPositionScreen.x, checkpointPositionScreen.y + 15, Color( 255, 220, 0, 255 ), 1 )
+			draw.DrawText( tostring( checkpointDistance ).." m", "roboto16", checkpointPositionScreen.x, checkpointPositionScreen.y + 15, Color( 255, 220, 0, 255 ), 1 )
 		
 		else
 		
@@ -130,8 +130,8 @@ function GM:HUDPaint()
 		-- AUX bar
 		if ( energy < 100 ) then
 		
-			draw.RoundedBox( 8, ( ScrH() - h * 0.132 ) / 27.75, ScrH() - h * 0.132, h * 0.026 * 8.2, h * 0.026, Color( 0, 0, 0, 75 ) )
-			surface.SetDrawColor( 236, 210, 37, 150 )
+			draw.RoundedBox( 4, ( ScrH() - h * 0.132 ) / 27.75, ScrH() - h * 0.132, h * 0.026 * 8.2, h * 0.026, Color( 0, 0, 0, 76 ) )
+			surface.SetDrawColor( 255, 235, 20, 200 )
 			surface.DrawRect( ( ScrH() - h * 0.126 ) / 22.3, ScrH() - h * 0.126, ( energy / 100 ) * ( h * 0.015 * 12.75 ), h * 0.015 )
 		
 		end
@@ -144,11 +144,11 @@ function GM:HUDPaint()
 		local nextMapCountdownLeft = math.Round( nextMapCountdownStart + NEXT_MAP_TIME - CurTime() )
 		if ( nextMapCountdownLeft > 0 ) then
 		
-			draw.DrawText( "Next Map in "..tostring( nextMapCountdownLeft ), "impact32", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), 1 )
+			draw.SimpleTextOutlined( "Next Map in "..tostring( nextMapCountdownLeft ), "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
 		
 		else
 		
-			draw.DrawText( "Switching Maps!", "impact32", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), 1 )
+			draw.SimpleTextOutlined( "Switching Maps!", "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
 		
 		end
 	
@@ -160,11 +160,11 @@ function GM:HUDPaint()
 		local restartMapCountdownLeft = math.Round( restartMapCountdownStart + RESTART_MAP_TIME - CurTime() )
 		if ( restartMapCountdownLeft > 0 ) then
 		
-			draw.DrawText( "Restarting Map in "..tostring( restartMapCountdownLeft ), "impact32", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), 1 )
+			draw.SimpleTextOutlined( "Restarting Map in "..tostring( restartMapCountdownLeft ), "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
 		
 		else
 		
-			draw.DrawText( "Restarting Map!", "impact32", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), 1 )
+			draw.SimpleTextOutlined( "Restarting Map!", "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
 		
 		end
 	
@@ -213,10 +213,9 @@ function GM:Initialize()
 	haloPlayerTable = {}
 
 	-- Fonts we will need later
-	surface.CreateFont( "arial16", { size = 16, weight = 400, antialias = true, additive = false, font = "Arial" } )
-	surface.CreateFont( "arial16Bold", { size = 16, weight = 700, antialias = true, additive = false, font = "Arial" } )
-	surface.CreateFont( "coolvetica72", { size = 72, weight = 500, antialias = true, additive = false, font = "coolvetica" } )
-	surface.CreateFont( "impact32", { size = 32, weight = 400, antialias = true, additive = false, font = "Impact" } )
+	surface.CreateFont( "roboto16", { size = 16, weight = 400, antialias = true, additive = false, font = "Roboto" } )
+	surface.CreateFont( "roboto16Bold", { size = 16, weight = 700, antialias = true, additive = false, font = "Roboto Bold" } )
+	surface.CreateFont( "orbitron32Bold", { size = 32, weight = 700, antialias = true, additive = false, font = "Orbitron Bold" } )
 
 	-- Language
 	language.Add( "worldspawn", "World" )

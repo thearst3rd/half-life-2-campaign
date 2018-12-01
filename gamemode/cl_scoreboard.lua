@@ -9,10 +9,10 @@ local PANEL = {}
 -- Apply the scheme of things
 function PANEL:ApplySchemeSettings()
 
-	self.hostnameLabel:SetFont( "arial16" )
+	self.hostnameLabel:SetFont( "roboto16" )
 	self.hostnameLabel:SetTextColor( Color( 255, 220, 0, 255 ) )
 
-	self.numPlayersLabel:SetFont( "arial16" )
+	self.numPlayersLabel:SetFont( "roboto16" )
 	self.numPlayersLabel:SetTextColor( Color( 255, 220, 0, 255 ) )
 
 end
@@ -28,7 +28,7 @@ function PANEL:Init()
 	self.playerList = vgui.Create( "scoreboard_playerlist", self )
 
 	self:UpdateScoreboard()
-	timer.Create( "hl2c_scoreboard_updater", 0.5, 0, function() self:UpdateScoreboard() end )
+	timer.Create( "hl2c_scoreboard_updater", 1, 0, function() self:UpdateScoreboard() end )
 
 end
 
@@ -70,11 +70,11 @@ function PANEL:UpdateScoreboard( force )
 	local numPlayers = player.GetCount()
 	if ( numPlayers == 1 ) then
 	
-		self.numPlayersLabel:SetText( "1 PLAYER" )
+		self.numPlayersLabel:SetText( "1 Player" )
 	
 	else
 	
-		self.numPlayersLabel:SetText( numPlayers.." PLAYERS" )
+		self.numPlayersLabel:SetText( numPlayers.." Players" )
 	
 	end
 

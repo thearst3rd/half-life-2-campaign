@@ -2,10 +2,6 @@ INFO_PLAYER_SPAWN = { Vector( 4435, 1211, 291 ), 0 }
 
 NEXT_MAP = "d3_c17_08"
 
-TRIGGER_CHECKPOINT = {
-	{ Vector( 7284, 1410, -3 ), Vector( 7341, 1663, 157 ) }
-}
-
 
 -- Player spawns
 function hl2cPlayerSpawn( ply )
@@ -31,5 +27,31 @@ function hl2cInitPostEntity()
 
 	ents.FindByName( "player_items_template" )[ 1 ]:Remove()
 
+	if ( !game.SinglePlayer() ) then
+	
+		ents.FindByName( "gate_close_playerclip" )[ 1 ]:Remove()
+		ents.FindByName( "gate_closing_hurt" )[ 1 ]:Remove()
+	
+	end
+
 end
 hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+
+
+-- Accept input
+function hl2cAcceptInput( ent, input, activator, caller, value )
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "alyx_briefingroom_exitdoor" ) && ( string.lower( input ) == "lock" ) ) then
+	
+		return true
+	
+	end
+
+	if ( !game.SinglePlayer() && ( ent:GetName() == "barricade_gate" ) && ( string.lower( input ) == "setanimation" ) && ( string.lower( tostring( value ) ) == "close" ) ) then
+	
+		return true
+	
+	end
+
+end
+hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )

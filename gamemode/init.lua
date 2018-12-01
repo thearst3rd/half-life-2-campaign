@@ -83,6 +83,7 @@ function GM:CreateSpawnPoint( pos, yaw )
 	local ips = ents.Create( "info_player_start" )
 	ips:SetPos( pos )
 	ips:SetAngles( Angle( 0, yaw, 0 ) )
+	ips:SetKeyValue( "spawnflags", "1" )
 	ips:Spawn()
 
 end
@@ -219,7 +220,7 @@ function GM:EntityTakeDamage( ent, dmgInfo )
 	-- Gravity gun punt should kill NPC's
 	if ( IsValid( ent ) && ent:IsNPC() && IsValid( attacker ) && attacker:IsPlayer() ) then
 	
-		if ( SUPER_GRAVITY_GUN && IsValid( attacker:GetActiveWeapon() ) && ( attacker:GetActiveWeapon():GetClass() == "weapon_physcannon" ) ) then
+		if ( GetGlobalBool( "SUPER_GRAVITY_GUN" ) && IsValid( attacker:GetActiveWeapon() ) && ( attacker:GetActiveWeapon():GetClass() == "weapon_physcannon" ) ) then
 		
 			dmgInfo:SetDamage( ent:Health() )
 		
@@ -338,6 +339,13 @@ function GM:Initialize()
 	game.ConsoleCommand( "physgun_limited 1\n" )
 	game.ConsoleCommand( "sv_alltalk 1\n" )
 	game.ConsoleCommand( "sv_defaultdeployspeed 1\n" )
+
+	-- Physcannon
+	game.ConsoleCommand( "physcannon_tracelength 250\n" )
+	game.ConsoleCommand( "physcannon_maxmass 250\n" )
+	game.ConsoleCommand( "physcannon_pullforce 4000\n" )
+
+	-- Episodic
 	if ( string.find( game.GetMap(), "ep1_" ) || string.find( game.GetMap(), "ep2_" ) ) then
 	
 		game.ConsoleCommand( "hl2_episodic 1\n" )
@@ -406,15 +414,38 @@ function GM:Initialize()
 end
 
 
+-- Function for spawn points
+local function MasterPlayerStartExists()
+
+	-- Returns true if conditions are met
+	for _, ips in pairs( ents.FindByClass( "info_player_start" ) ) do
+	
+		if ( ips:HasSpawnFlags( 1 ) || INFO_PLAYER_SPAWN ) then
+		
+			return true
+		
+		end
+	
+	end
+
+	return false
+
+end
+
+
 -- Called as soon as all map entities have been spawned 
 function GM:InitPostEntity()
 
 	-- Remove old spawn points
-	for _, ips in pairs( ents.FindByClass( "info_player_start" ) ) do
+	if ( MasterPlayerStartExists() ) then
 	
-		if ( !ips:HasSpawnFlags( 1 ) || INFO_PLAYER_SPAWN ) then
+		for _, ips in pairs( ents.FindByClass( "info_player_start" ) ) do
 		
-			ips:Remove()
+			if ( !ips:HasSpawnFlags( 1 ) || INFO_PLAYER_SPAWN ) then
+			
+				ips:Remove()
+			
+			end
 		
 		end
 	
@@ -450,7 +481,7 @@ function GM:InitPostEntity()
 	end
 
 	-- Setup TRIGGER_DELAYMAPLOAD
-	if ( !game.SinglePlayer() && TRIGGER_DELAYMAPLOAD ) then
+	if ( TRIGGER_DELAYMAPLOAD ) then
 	
 		GAMEMODE:CreateTDML( TRIGGER_DELAYMAPLOAD[ 1 ], TRIGGER_DELAYMAPLOAD[ 2 ] )
 	
@@ -717,10 +748,17 @@ function GM:PlayerInitialSpawn( ply )
 	-- Set current checkpoint
 	if ( #checkpointPositions > 0 ) then
 	
-		net.Start( "PlayerInitialSpawn")
+		net.Start( "PlayerInitialSpawn" )
 			net.WriteBool( hl2c_server_custom_playermodels:GetBool() )
 			net.WriteVector( checkpointPositions[ 1 ] )
 		net.Send( ply )
+	
+	end
+
+	-- Prompt players that they can spawn vehicles
+	if ( ALLOWED_VEHICLE ) then
+	
+		ply:ChatPrint( "Vehicle spawning is allowed! Press F3 (Spare 1) to spawn it." )
 	
 	end
 
@@ -800,9 +838,9 @@ end
 
 
 -- Select the player spawn
-function HL2CPlayerSelectSpawn( ply )
+function hl2cPlayerSelectSpawn( ply )
 
-	if ( INFO_PLAYER_SPAWN || TRIGGER_CHECKPOINT ) then
+	if ( MasterPlayerStartExists() ) then
 	
 		local spawnPoints = ents.FindByClass( "info_player_start" )
 		return spawnPoints[ #spawnPoints ]
@@ -810,14 +848,14 @@ function HL2CPlayerSelectSpawn( ply )
 	end
 
 end
-hook.Add( "PlayerSelectSpawn", "HL2CPlayerSelectSpawn", HL2CPlayerSelectSpawn )
+hook.Add( "PlayerSelectSpawn", "hl2cPlayerSelectSpawn", hl2cPlayerSelectSpawn )
 
 
 -- Set the player model
 function GM:PlayerSetModel( ply )
 
 	-- Stores the model as a variable part of the player
-	if ( ply.info && ply.info.model ) then
+	if ( !hl2c_server_custom_playermodels:GetBool() && ply.info && ply.info.model ) then
 	
 		ply.modelName = ply.info.model
 	
@@ -955,7 +993,7 @@ function GM:PlayerSpawn( ply )
 	
 	end
 
-	-- If we made it this far we might might not be even dead
+	-- If we made it this far we might might not even be dead
 	ply:SetTeam( TEAM_ALIVE )
 
 end
@@ -1189,130 +1227,11 @@ function GM:Think()
 	
 	end
 
-	-- For each player
-	for _, ply in ipairs( player.GetAll() ) do
-	
-		if ( IsValid( ply ) && ply:Alive() && ( ply:Team() == TEAM_ALIVE ) ) then
-		
-			-- Give them weapons they don't have
-			for _, ply2 in pairs( player.GetAll() ) do
-			
-				if ( ( ply != ply2 ) && ply2:Alive() && !ply:InVehicle() && !ply2:InVehicle() && IsValid( ply2:GetActiveWeapon() ) && !ply:HasWeapon( ply2:GetActiveWeapon():GetClass() ) && !table.HasValue( ply.givenWeapons, ply2:GetActiveWeapon():GetClass() ) && ( ply2:GetActiveWeapon():GetClass() != "weapon_physgun" ) ) then
-				
-					ply:Give( ply2:GetActiveWeapon():GetClass() )
-					table.insert( ply.givenWeapons, ply2:GetActiveWeapon():GetClass() )
-				
-				end
-			
-			end
-		
-			-- Sprinting and water level
-			if ( ply.nextEnergyCycle < CurTime() ) then
-			
-				if ( !ply:InVehicle() && ( ply:GetVelocity():Length() > ply:GetWalkSpeed() ) && ply:KeyDown( IN_SPEED ) && ( ply.energy > 0 ) ) then
-				
-					ply.energy = ply.energy - 2.5
-				
-				elseif ( ( ply:WaterLevel() == 3 ) && ( ply.energy > 0 ) ) then
-				
-					ply.energy = ply.energy - 0.75
-				
-				elseif ( flashlightDrainsAUX && !ply:InVehicle() && ply:FlashlightIsOn() && ( ply.energy > 0 ) ) then
-				
-					ply.energy = ply.energy - 0.25
-				
-				elseif ( ply.energy < 100 ) then
-				
-					ply.energy = ply.energy + 1.25
-				
-				end
-			
-				ply.energy = math.Clamp( ply.energy, 0, 100 )
-			
-				net.Start( "UpdateEnergy" )
-					net.WriteFloat( ply.energy )
-				net.Send( ply )
-			
-				ply.nextEnergyCycle = CurTime() + 0.1
-			
-			end
-		
-			-- Now check if they have enough energy 
-			if ( ply.energy <= 0 ) then
-			
-				if ( !ply:GetNWBool( "sprintDisabled", false ) ) then
-				
-					if ( flashlightDrainsAUX && ply:FlashlightIsOn() ) then ply:Flashlight( false ) end
-					ply:SetNWBool( "sprintDisabled", true )
-				
-				end
-			
-				-- Now remove health if underwater
-				if ( ( ply:WaterLevel() == 3 ) && ( ply.nextSetHealth < CurTime() ) ) then
-				
-					ply.nextSetHealth = CurTime() + 1
-					ply:SetHealth( ply:Health() - 10 )
-				
-					net.Start( "DrowningEffect" )
-					net.Send( ply )
-				
-					if ( ply:Alive() && ( ply:Health() <= 0 ) ) then
-					
-						ply:Kill()
-					
-					else
-					
-						ply.healthRemoved = ply.healthRemoved + 10
-					
-					end
-				
-				end
-			
-			elseif ( ( ply.energy >= 25 ) && ply:GetNWBool( "sprintDisabled", false ) ) then
-			
-				ply:SetNWBool( "sprintDisabled", false )
-			
-			end
-		
-			-- Give back health if we can
-			if ( ( ply:WaterLevel() <= 2 ) && ( ply.nextSetHealth < CurTime() ) && ( ply.healthRemoved > 0 ) ) then
-			
-				ply.nextSetHealth = CurTime() + 1
-				ply:SetHealth( ply:Health() + 10 )
-				ply.healthRemoved = ply.healthRemoved - 10
-			
-				if ( ply:Health() > ply:GetMaxHealth() ) then
-				
-					ply:SetHealth( ply:GetMaxHealth() )
-					ply.healthRemoved = 0
-				
-				end
-			
-			end
-		
-			-- Check primary ammo counts so we follow HL2 ammo max values
-			if ( hl2c_server_ammo_limit:GetBool() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetPrimaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ] ) ) then
-			
-				ply:SetAmmo( AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetPrimaryAmmoType() ], ply:GetActiveWeapon():GetPrimaryAmmoType() )
-			
-			end
-		
-			-- Check secondary ammo counts so we follow HL2 ammo max values
-			if ( hl2c_server_ammo_limit:GetBool() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetSecondaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] && ( ply:GetAmmoCount( ply:GetActiveWeapon():GetSecondaryAmmoType() ) > AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ] ) ) then
-			
-				ply:SetAmmo( AMMO_MAX_VALUES[ ply:GetActiveWeapon():GetSecondaryAmmoType() ], ply:GetActiveWeapon():GetSecondaryAmmoType() )
-			
-			end
-		
-		end
-	
-	end
-
 	-- Change the difficulty according to number of players
 	if ( hl2c_server_dynamic_skill_level:GetBool() && ( player.GetCount() > 0 ) && ( updateDifficulty < CurTime() ) ) then
 	
 		difficulty = math.Clamp( math.Remap( player.GetCount(), 4, 16, 1, 3 ), DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
-		game.ConsoleCommand( "skill "..math.Round( difficulty ).."\n" )
+		game.ConsoleCommand( "skill "..math.floor( difficulty ).."\n" )
 	
 		-- Do not update all the time
 		updateDifficulty = CurTime() + 2

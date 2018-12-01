@@ -27,13 +27,13 @@ function hl2cAcceptInput( ent, input )
 
 	if ( ( ent:GetName() == "logic_weapon_strip_dissolve" ) && ( string.lower( input ) == "trigger" ) ) then
 	
-		if ( IsValid( ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ] ) ) then ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ]:Fire( "Trigger", "", 3 ) end
+		if ( IsValid( ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ] ) ) then ents.FindByName( "logic_weapon_strip_physcannon_start" )[ 1 ]:Fire( "Trigger", "", 3 ); end
 	
 	end
 
 	if ( ( ent:GetName() == "strip_stop" ) && ( string.lower( input ) == "trigger" ) ) then
 	
-		SUPER_GRAVITY_GUN = true
+		SetGlobalBool( "SUPER_GRAVITY_GUN", true )
 	
 		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
@@ -54,13 +54,13 @@ hook.Add( "AcceptInput", "hl2cAcceptInput", hl2cAcceptInput )
 -- Every frame or tick
 function hl2cThink()
 
-	if ( SUPER_GRAVITY_GUN ) then
+	if ( GetGlobalBool( "SUPER_GRAVITY_GUN" ) ) then
 	
 		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
 		
 			if ( IsValid( ent ) && ent:IsWeapon() ) then
 			
-				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ) end
+				if ( ent:GetSkin() != 1 ) then ent:SetSkin( 1 ); end
 			
 			end
 		
@@ -71,16 +71,6 @@ function hl2cThink()
 			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) && ( !IsValid( ent:GetOwner() ) || ( IsValid( ent:GetOwner() ) && ent:GetOwner():IsPlayer() ) ) ) then
 			
 				ent:Remove()
-			
-			end
-		
-		end
-	
-		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
-		
-			if ( IsValid( ply ) && ply:Alive() && IsValid( ply:GetActiveWeapon() ) && ( ply:GetActiveWeapon():GetClass() == "weapon_physcannon" ) ) then
-			
-				if ( ply:GetViewModel():GetModel() != "models/weapons/c_superphyscannon.mdl" ) then ply:GetViewModel():SetModel( "models/weapons/c_superphyscannon.mdl" ) end
 			
 			end
 		

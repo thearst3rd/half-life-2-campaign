@@ -70,7 +70,7 @@ function PANEL:PerformLayout()
 		table.insert( playerRowsSorted, row )
 	
 	end
-	table.sort( playerRowsSorted, function ( a, b ) return a:HigherOrLower( b ) end )
+	table.sort( playerRowsSorted, function( a, b ) return a:HigherOrLower( b ) end )
 
 	local y = 15
 	for _, row in ipairs( playerRowsSorted ) do

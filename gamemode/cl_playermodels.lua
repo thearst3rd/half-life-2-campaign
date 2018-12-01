@@ -18,7 +18,7 @@ function GM:OpenPlayerModelMenu()
 	-- Prevent opening the menu
 	if ( !CUSTOM_PLAYERMODEL_MENU_ENABLED ) then
 	
-		chat.AddText( Color( 255, 0, 0 ), "Custom playermodels aren't enabled on this server!" )
+		chat.AddText( Color( 255, 0, 0 ), "Player Model menu is disabled!" )
 		return
 	
 	end
@@ -29,6 +29,14 @@ function GM:OpenPlayerModelMenu()
 	window:SetSize( math.min( ScrW() - 16, 960 ), math.min( ScrH() - 16, 700 ) )
 	window:Center()
 	window:MakePopup()
+
+	-- Window frame closed
+	function window:OnClose()
+	
+		net.Start( "UpdatePlayerModel" )
+		net.SendToServer()
+	
+	end
 
 	-- Model panel
 	local mdl = window:Add( "DModelPanel" )
@@ -159,9 +167,6 @@ function GM:OpenPlayerModelMenu()
 		
 		end
 	
-		net.Start( "UpdatePlayerModel" )
-		net.SendToServer()
-	
 	end
 
 	-- Rebuilds the body group tab
@@ -232,9 +237,6 @@ function GM:OpenPlayerModelMenu()
 	
 		plycol:SetVector( Vector( GetConVarString( "cl_playercolor" ) ) )
 	
-		net.Start( "UpdatePlayerModel" )
-		net.SendToServer()
-	
 		PlayPreviewAnimation( mdl, model )
 		RebuildBodygroupTab()
 	
@@ -244,9 +246,6 @@ function GM:OpenPlayerModelMenu()
 	local function UpdateFromControls()
 	
 		RunConsoleCommand( "cl_playercolor", tostring( plycol:GetVector() ) )
-	
-		net.Start( "UpdatePlayerModel" )
-		net.SendToServer()
 	
 	end
 

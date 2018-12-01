@@ -5,15 +5,15 @@ local PANEL = {}
 -- Apply the scheme of things
 function PANEL:ApplySchemeSettings()
 
-	self.nameLabel:SetFont( "arial16Bold" )
+	self.nameLabel:SetFont( "roboto16Bold" )
 
-	self.statusLabel:SetFont( "arial16Bold" )
+	self.statusLabel:SetFont( "roboto16Bold" )
 
-	self.scoreLabel:SetFont( "arial16Bold" )
+	self.scoreLabel:SetFont( "roboto16Bold" )
 
-	self.deathsLabel:SetFont( "arial16Bold" )
+	self.deathsLabel:SetFont( "roboto16Bold" )
 
-	self.pingLabel:SetFont( "arial16Bold" )
+	self.pingLabel:SetFont( "roboto16Bold" )
 
 end
 
@@ -43,14 +43,14 @@ function PANEL:Init()
 	if ( game.MaxPlayers() <= 10 ) then
 	
 		self.posY = 9
-		self.avatarX = 25
+		self.avatarX = 23
 		self.avatarY = 1
 		self.avatarSize = 32
 	
 	else
 	
 		self.posY = 2
-		self.avatarX = 40
+		self.avatarX = 38
 		self.avatarY = 2
 		self.avatarSize = 16
 	
