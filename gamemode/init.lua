@@ -142,6 +142,7 @@ function GM:PlayerDeathThink( ply )
 		
 		else
 		
+			ply:SetTeam( TEAM_ALIVE )
 			ply:Spawn()
 		
 		end

@@ -16,7 +16,7 @@ CUSTOM_PLAYERMODEL_MENU_ENABLED = false
 function GM:OpenPlayerModelMenu()
 
 	-- Prevent opening the menu
-	if ( !CUSTOM_PLAYERMODEL_MENU_ENABLED ) then
+	if ( !CUSTOM_PLAYERMODEL_MENU_ENABLED || OVERRIDE_PLAYERMODEL_MENU ) then
 	
 		chat.AddText( Color( 255, 0, 0 ), "Player Model menu is disabled!" )
 		return
