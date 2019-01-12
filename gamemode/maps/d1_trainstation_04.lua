@@ -12,7 +12,7 @@ TRAINSTATION_VIEWCONTROL = false
 function hl2cPlayerSpawn( ply )
 
 	ply:RemoveSuit()
-	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ) end end )
+	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ); end; end )
 
 	if ( TRAINSTATION_VIEWCONTROL ) then
 	
@@ -27,10 +27,7 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
-
-	game.SetGlobalState( "gordon_precriminal", GLOBAL_OFF )
-	game.SetGlobalState( "gordon_invulnerable", GLOBAL_OFF )
+function hl2cMapEdit()
 
 	if ( !game.SinglePlayer() ) then
 	
@@ -45,7 +42,7 @@ function hl2cInitPostEntity()
 	end
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 
 
 -- Accept input

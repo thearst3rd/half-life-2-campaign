@@ -13,16 +13,14 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
-
-	game.SetGlobalState( "gordon_precriminal", GLOBAL_OFF )
-	game.SetGlobalState( "gordon_invulnerable", GLOBAL_OFF )
+function hl2cMapEdit()
 
 	ents.FindByName( "start_item_template" )[ 1 ]:Remove()
-	if ( !game.SinglePlayer() ) then ents.FindByName( "boxcar_door_close" )[ 1 ]:Remove() end
+
+	if ( !game.SinglePlayer() ) then ents.FindByName( "boxcar_door_close" )[ 1 ]:Remove(); end
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 
 
 -- Accept input

@@ -31,10 +31,13 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
+function hl2cMapEdit()
+
+	game.SetGlobalState( "no_seagulls_on_jeep", GLOBAL_ON )
 
 	ents.FindByName( "player_spawn_items_maker" )[ 1 ]:Remove()
 	ents.FindByName( "jeep_filter" )[ 1 ]:Fire( "AddOutput", "filterclass prop_vehicle_jeep_old" )
+
 	if ( file.Exists( "half-life_2_campaign/d2_coast_08.txt", "DATA" ) ) then
 	
 		for _, ent in pairs( ents.FindByName( "bridge_field_02" ) ) do
@@ -42,34 +45,40 @@ function hl2cInitPostEntity()
 			ent:Remove()
 		
 		end
+	
 		for _, ent in pairs( ents.FindByName( "forcefield*" ) ) do
 		
 			ent:Remove()
 		
 		end
+	
 		for _, ent in pairs( ents.FindByName( "dropship*" ) ) do
 		
 			ent:Remove()
 		
 		end
+	
 		for _, ent in pairs( ents.FindByName( "gunship*" ) ) do
 		
 			ent:Remove()
 		
 		end
+	
 		for _, ent in pairs( ents.FindByName( "assault*" ) ) do
 		
 			ent:Remove()
 		
 		end
+	
 		for _, ent in pairs( ents.FindByName( "halt*" ) ) do
 		
 			ent:Remove()
 		
 		end
+	
 		ents.FindByName( "field_trigger" )[ 1 ]:Remove()
 	
 	end
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )

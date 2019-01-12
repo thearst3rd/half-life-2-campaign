@@ -331,9 +331,6 @@ function PlayerInitialSpawn( len )
 	-- Enable or disable the custom playermodel menu
 	CUSTOM_PLAYERMODEL_MENU_ENABLED = net.ReadBool()
 
-	-- Transmit the active checkpoint
-	checkpointPosition = net.ReadVector()
-
 end
 net.Receive( "PlayerInitialSpawn", PlayerInitialSpawn )
 

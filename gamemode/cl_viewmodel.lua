@@ -21,13 +21,24 @@ end
 -- Source SDK ported CalcViewModelLag
 function CalcViewModelLag( origin, angles, original_angles )
 
+	-- Frame Timing
+	if ( game.SinglePlayer() ) then
+	
+		frameTime = FrameTime()
+	
+	else
+	
+		frameTime = RealFrameTime()
+	
+	end
+
 	local vOriginalOrigin = origin
 	local vOriginalAngles = angles
 
 	-- Calculate our drift
 	local forward = angles:Forward()
 
-	if ( RealFrameTime() != 0.0 ) then
+	if ( frameTime != 0.0 ) then
 	
 		local vDifference = forward - m_vecLastFacing
 	
@@ -44,7 +55,7 @@ function CalcViewModelLag( origin, angles, original_angles )
 		end
 	
 		-- FIXME: Needs to be predictable?
-		VectorMA( m_vecLastFacing, flSpeed * RealFrameTime(), vDifference, m_vecLastFacing )
+		VectorMA( m_vecLastFacing, flSpeed * frameTime, vDifference, m_vecLastFacing )
 		-- Make sure it doesn't grow out of control!!!
 		m_vecLastFacing:Normalize()
 		VectorMA( origin, 5.0, vDifference * -1.0, origin )

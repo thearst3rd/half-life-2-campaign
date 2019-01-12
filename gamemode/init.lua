@@ -14,6 +14,7 @@ AddCSLuaFile( "sh_init.lua" )
 AddCSLuaFile( "sh_player.lua" )
 
 -- Include the required lua files
+include( "sv_globalstates.lua" )
 include( "sh_init.lua" )
 
 -- Include the configuration for this map
@@ -109,14 +110,14 @@ function GM:DoPlayerDeath( ply, attacker, dmgInfo )
 	ply.deathPos = ply:EyePos()
 
 	-- Add to deadPlayers table to prevent respawning on re-connect
-	if ( !hl2c_server_player_respawning:GetBool() && !table.HasValue( deadPlayers, ply:SteamID() ) ) then
+	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && !table.HasValue( deadPlayers, ply:SteamID() ) ) then
 	
 		table.insert( deadPlayers, ply:SteamID() )
 	
 	end
 	
 	ply:RemoveVehicle()
-	ply:Flashlight( false )
+	if ( ply:FlashlightIsOn() ) then ply:Flashlight( false ); end
 	ply:CreateRagdoll()
 	ply:SetTeam( TEAM_DEAD )
 	ply:AddDeaths( 1 )
@@ -134,7 +135,7 @@ function GM:PlayerDeathThink( ply )
 
 	if ( ( ply:GetObserverMode() != OBS_MODE_ROAMING ) && ( ply:IsBot() || ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) ) then
 	
-		if ( !hl2c_server_player_respawning:GetBool() ) then
+		if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) then
 		
 			ply:Spectate( OBS_MODE_ROAMING )
 			ply:SetPos( ply.deathPos )
@@ -229,10 +230,10 @@ function GM:EntityTakeDamage( ent, dmgInfo )
 	
 	end
 
-	-- Crowbar should follow skill level
+	-- Crowbar and Stunstick should follow skill level
 	if ( IsValid( ent ) && IsValid( attacker ) && attacker:IsPlayer() ) then
 	
-		if ( IsValid( attacker:GetActiveWeapon() ) && ( attacker:GetActiveWeapon():GetClass() == "weapon_crowbar" ) ) then
+		if ( IsValid( attacker:GetActiveWeapon() ) && ( ( attacker:GetActiveWeapon():GetClass() == "weapon_crowbar" ) || ( attacker:GetActiveWeapon():GetClass() == "weapon_stunstick" ) ) ) then
 		
 			dmgInfo:SetDamage( 10 / difficulty )
 		
@@ -352,6 +353,10 @@ function GM:Initialize()
 		game.ConsoleCommand( "hl2_episodic 1\n" )
 	
 	end
+
+	-- Kill global states
+	-- Reasoning behind this is because changing levels would keep these known states and cause issues on other maps
+	hook.Call( "KillAllGlobalStates", GAMEMODE )
 
 	-- Jeep
 	local jeep = {
@@ -509,15 +514,6 @@ function GM:InitPostEntity()
 	end
 	table.insert( checkpointPositions, tdmlPos )
 
-	-- Send checkpoint positions
-	if ( #checkpointPositions > 0 ) then
-	
-		net.Start( "SetCheckpointPosition" )
-			net.WriteVector( checkpointPositions[ #checkpointPositions ] )
-		net.Broadcast()
-	
-	end
-
 	-- Remove all triggers that cause the game to "end"
 	for _, trig in pairs( ents.FindByClass( "trigger_*" ) ) do
 	
@@ -528,6 +524,9 @@ function GM:InitPostEntity()
 		end
 	
 	end
+
+	-- Call a map edit (used by map lua hooks)
+	hook.Call( "MapEdit", GAMEMODE )
 
 	-- Update ammo tables
 	hook.Call( "UpdateAmmoTables", GAMEMODE )
@@ -663,7 +662,14 @@ end
 -- Called when a player tries to pickup a weapon
 function GM:PlayerCanPickupWeapon( ply, wep )
 
-	if ( ( ply:Team() != TEAM_ALIVE ) || ( wep:GetClass() == "weapon_stunstick" ) || ( wep:GetClass() == "weapon_slam" ) || ( ( wep:GetClass() == "weapon_physgun" ) && !ply:IsAdmin() ) ) then
+	if ( ( ply:Team() != TEAM_ALIVE ) || ( ( wep:GetClass() == "weapon_physgun" ) && !ply:IsAdmin() ) ) then
+	
+		return false
+	
+	end
+
+	-- This prevents melee weapons disappearing
+	if ( ( wep:GetPrimaryAmmoType() <= 0 ) && ply:HasWeapon( wep:GetClass() ) ) then
 	
 		return false
 	
@@ -746,11 +752,15 @@ function GM:PlayerInitialSpawn( ply )
 	
 	end
 
-	-- Set current checkpoint
+	-- Send initial player spawn to client
+	net.Start( "PlayerInitialSpawn" )
+		net.WriteBool( hl2c_server_custom_playermodels:GetBool() )
+	net.Send( ply )
+
+	-- Send current checkpoint position
 	if ( #checkpointPositions > 0 ) then
 	
-		net.Start( "PlayerInitialSpawn" )
-			net.WriteBool( hl2c_server_custom_playermodels:GetBool() )
+		net.Start( "SetCheckpointPosition" )
 			net.WriteVector( checkpointPositions[ 1 ] )
 		net.Send( ply )
 	
@@ -924,7 +934,7 @@ function GM:PlayerSpawn( ply )
 
 	player_manager.SetPlayerClass( ply, "player_default" )
 
-	if ( !hl2c_server_player_respawning:GetBool() && ( ply:Team() == TEAM_DEAD ) ) then
+	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && ( ply:Team() == TEAM_DEAD ) ) then
 	
 		ply:Spectate( OBS_MODE_ROAMING )
 		ply:SetPos( ply.deathPos )
@@ -933,6 +943,9 @@ function GM:PlayerSpawn( ply )
 		return
 	
 	end
+
+	-- If we made it this far we might might not even be dead
+	ply:SetTeam( TEAM_ALIVE )
 
 	-- Player vars
 	ply.energy = 100
@@ -946,7 +959,7 @@ function GM:PlayerSpawn( ply )
 
 	-- Player statistics
 	ply:UnSpectate()
-	ply:ShouldDropWeapon( !hl2c_server_player_respawning:GetBool() )
+	ply:ShouldDropWeapon( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING )
 	ply:AllowFlashlight( true )
 	ply:SetCrouchedWalkSpeed( 0.3 )
 	hook.Call( "SetPlayerSpeed", GAMEMODE, ply, 190, 320 )
@@ -993,9 +1006,6 @@ function GM:PlayerSpawn( ply )
 		ply:KillSilent()
 	
 	end
-
-	-- If we made it this far we might might not even be dead
-	ply:SetTeam( TEAM_ALIVE )
 
 end
 
@@ -1222,7 +1232,7 @@ end
 function GM:Think()
 
 	-- Restart the map if all players are dead
-	if ( !hl2c_server_player_respawning:GetBool() && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
+	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
 	
 		hook.Call( "RestartMap", GAMEMODE )
 	

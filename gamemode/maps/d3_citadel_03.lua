@@ -8,7 +8,7 @@ TRIGGER_CHECKPOINT = {
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
+function hl2cMapEdit()
 
 	game.ConsoleCommand( "physcannon_tracelength 850\n" )
 	game.ConsoleCommand( "physcannon_maxmass 850\n" )
@@ -19,7 +19,7 @@ function hl2cInitPostEntity()
 	ents.FindByName( "global_newgame_template_local_items" )[ 1 ]:Remove()
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 
 
 -- Accept input

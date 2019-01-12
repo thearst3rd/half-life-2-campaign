@@ -32,7 +32,7 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
+function hl2cMapEdit()
 
 	game.SetGlobalState( "antlion_allied", GLOBAL_ON )
 
@@ -41,4 +41,4 @@ function hl2cInitPostEntity()
 	table.insert( FRIENDLY_NPCS, "npc_antlion" )
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )

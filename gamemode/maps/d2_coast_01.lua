@@ -18,7 +18,9 @@ hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
 
 
 -- Initialize entities
-function hl2cInitPostEntity()
+function hl2cMapEdit()
+
+	game.SetGlobalState( "no_seagulls_on_jeep", GLOBAL_ON )
 
 	ents.FindByName( "global_newgame_template_ammo" )[ 1 ]:Remove()
 	ents.FindByName( "global_newgame_template_base_items" )[ 1 ]:Remove()
@@ -28,7 +30,7 @@ function hl2cInitPostEntity()
 	ents.FindByName( "jeep" )[ 1 ]:SetBodygroup( 1, 1 )
 
 end
-hook.Add( "InitPostEntity", "hl2cInitPostEntity", hl2cInitPostEntity )
+hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 
 
 -- Accept input
