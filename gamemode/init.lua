@@ -68,7 +68,7 @@ function GM:CanPlayerSuicide( ply )
 	
 	elseif ( ply:Team() == TEAM_DEAD ) then
 	
-		ply:ChatPrint( "This may come as a suprise, but you are already dead." )
+		ply:ChatPrint( "This may come as a surprise, but you are already dead." )
 		return false
 	
 	end
@@ -110,7 +110,7 @@ function GM:DoPlayerDeath( ply, attacker, dmgInfo )
 	ply.deathPos = ply:EyePos()
 
 	-- Add to deadPlayers table to prevent respawning on re-connect
-	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && !table.HasValue( deadPlayers, ply:SteamID() ) ) then
+	if ( ( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING ) && !table.HasValue( deadPlayers, ply:SteamID() ) ) then
 	
 		table.insert( deadPlayers, ply:SteamID() )
 	
@@ -135,7 +135,7 @@ function GM:PlayerDeathThink( ply )
 
 	if ( ( ply:GetObserverMode() != OBS_MODE_ROAMING ) && ( ply:IsBot() || ply:KeyPressed( IN_ATTACK ) || ply:KeyPressed( IN_ATTACK2 ) || ply:KeyPressed( IN_JUMP ) ) ) then
 	
-		if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) then
+		if ( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING ) then
 		
 			ply:Spectate( OBS_MODE_ROAMING )
 			ply:SetPos( ply.deathPos )
@@ -934,7 +934,7 @@ function GM:PlayerSpawn( ply )
 
 	player_manager.SetPlayerClass( ply, "player_default" )
 
-	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && ( ply:Team() == TEAM_DEAD ) ) then
+	if ( ( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING ) && ( ply:Team() == TEAM_DEAD ) ) then
 	
 		ply:Spectate( OBS_MODE_ROAMING )
 		ply:SetPos( ply.deathPos )
@@ -959,7 +959,7 @@ function GM:PlayerSpawn( ply )
 
 	-- Player statistics
 	ply:UnSpectate()
-	ply:ShouldDropWeapon( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING )
+	ply:ShouldDropWeapon( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING )
 	ply:AllowFlashlight( true )
 	ply:SetCrouchedWalkSpeed( 0.3 )
 	hook.Call( "SetPlayerSpeed", GAMEMODE, ply, 190, 320 )
@@ -1232,7 +1232,7 @@ end
 function GM:Think()
 
 	-- Restart the map if all players are dead
-	if ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
+	if ( ( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING ) && ( player.GetCount() > 0 ) && ( ( team.NumPlayers( TEAM_ALIVE ) + team.NumPlayers( TEAM_COMPLETED_MAP ) ) <= 0 ) ) then
 	
 		hook.Call( "RestartMap", GAMEMODE )
 	

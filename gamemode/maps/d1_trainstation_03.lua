@@ -4,6 +4,8 @@ TRIGGER_CHECKPOINT = {
 	{ Vector( -4998, -4918, 512 ), Vector( -4978, -4699, 619 ) }
 }
 
+OVERRIDE_PLAYER_RESPAWNING = true
+
 
 -- Player spawns
 function hl2cPlayerSpawn( ply )
