@@ -1,6 +1,6 @@
 "half-life_2_campaign"
 {
-	"title"			"HALF-LIFE 2: Campaign"
+	"title"			"Half-Life 2 Campaign"
 	"base"			"base"
 	"menusystem"	"1"
 

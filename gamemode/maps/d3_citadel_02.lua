@@ -4,8 +4,6 @@ NEXT_MAP_PERCENT = 1
 
 TRIGGER_DELAYMAPLOAD = { Vector( 3781, 13186, 3900 ), Vector( 3984, 13590, 4000 ) }
 
-CITADEL_VEHICLE_VIEWCONTROL = true
-
 
 -- Player spawns
 function hl2cPlayerSpawn( ply )
@@ -22,16 +20,16 @@ function hl2cPlayerSpawn( ply )
 	ply:Give( "weapon_crossbow" )
 	ply:Give( "weapon_bugbait" )
 
-	timer.Simple( 0.1, function() if ( IsValid( ply ) ) then ply:SetNoTarget( true ) end end )
-
-	if ( !game.SinglePlayer() && CITADEL_VEHICLE_VIEWCONTROL ) then
+	if ( !game.SinglePlayer() && IsValid( PLAYER_VIEWCONTROL ) && ( PLAYER_VIEWCONTROL:GetClass() == "point_viewcontrol" ) ) then
 	
-		ents.FindByName( "pod_player_viewcontrol" )[ 1 ]:Fire( "Enable" )
+		ply:SetViewEntity( PLAYER_VIEWCONTROL )
 		ply:Spectate( OBS_MODE_ROAMING )
-		ply:SetViewEntity( ents.FindByName( "pod_player_viewcontrol" )[ 1 ] )
-		ply:Freeze( true )
+		ply:DrawWorldModel( false )
+		ply:Lock()
 	
 	end
+
+	timer.Simple( 0.1, function() if ( IsValid( ply ) ) then ply:SetNoTarget( true ); end; end )
 
 end
 hook.Add( "PlayerSpawn", "hl2cPlayerSpawn", hl2cPlayerSpawn )
@@ -53,6 +51,7 @@ function hl2cMapEdit()
 		viewcontrol:Activate()
 		viewcontrol:SetParent( ents.FindByName( "pod_player" )[ 1 ] )
 		viewcontrol:Fire( "SetParentAttachment", "vehicle_driver_eyes" )
+		viewcontrol:Fire( "Enable", "", 1 )
 	
 	end
 
@@ -63,23 +62,56 @@ hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 -- Accept input
 function hl2cAcceptInput( ent, input )
 
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "point_viewcontrol" ) ) then
+	
+		if ( string.lower( input ) == "enable" ) then
+		
+			PLAYER_VIEWCONTROL = ent
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ent )
+				ply:Spectate( OBS_MODE_ROAMING )
+				ply:DrawWorldModel( false )
+				ply:Lock()
+			
+			end
+		
+			if ( !ent.doubleEnabled ) then
+			
+				ent.doubleEnabled = true
+				ent:Fire( "Enable" )
+			
+			end
+		
+		elseif ( string.lower( input ) == "disable" ) then
+		
+			PLAYER_VIEWCONTROL = nil
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ply )
+				ply:UnSpectate()
+				ply:DrawWorldModel( true )
+				ply:UnLock()
+			
+				ply:Spawn()
+			
+			end
+		
+			return true
+		
+		end
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "track_dump" ) && ( string.lower( input ) == "enable" ) ) then
 	
-		CITADEL_VEHICLE_VIEWCONTROL = false
-	
-		if ( timer.Exists( "hl2cUpdatePlayerPosition" ) ) then timer.Destroy( "hl2cUpdatePlayerPosition" ) end
+		if ( timer.Exists( "hl2cUpdatePlayerPosition" ) ) then timer.Destroy( "hl2cUpdatePlayerPosition" ); end
 	
 		GAMEMODE:CreateSpawnPoint( Vector( 3882, 13388, 3950 ), 0 )
 	
-		for _, ply in pairs( player.GetAll() ) do
-		
-			ply:UnSpectate()
-			ply:SetViewEntity()
-			ply:Freeze( false )
-		
-			ply:Spawn()
-		
-		end
+		PLAYER_VIEWCONTROL:Fire( "Disable" )
 	
 	end
 
@@ -92,7 +124,7 @@ if ( !game.SinglePlayer() ) then
 	-- Update player position to the vehicle
 	function hl2cUpdatePlayerPosition()
 	
-		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
+		for _, ply in ipairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
 			if ( IsValid( ply ) && ply:Alive() ) then
 			

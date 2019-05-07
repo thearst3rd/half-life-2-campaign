@@ -4,8 +4,8 @@ include( "sh_player.lua" )
 
 
 -- General gamemode information
-GM.Name = "HALF-LIFE 2: Campaign"
-GM.Author = "AMT (ported and improved by D4 the Perth Fox)"
+GM.Name = "Half-Life 2 Campaign"
+GM.Author = "AMT (ported and improved by D4 the Fox)"
 
 
 -- Constants

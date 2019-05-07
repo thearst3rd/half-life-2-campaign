@@ -1,6 +1,6 @@
 INFO_PLAYER_SPAWN = { Vector( -2489, -1292, 580 ), 90 }
 
-NEXT_MAP_PERCENT = 1
+NEXT_MAP_PERCENT = 101
 
 RESET_WEAPONS = true
 
@@ -16,18 +16,29 @@ else
 
 end
 
-BREEN_VEHICLE_VIEWCONTROL = true
+OVERRIDE_PLAYER_RESPAWNING = true
+
+CITADEL_ENDING = false
 
 
 -- Player spawns
 function hl2cPlayerSpawn( ply )
 
-	if ( !game.SinglePlayer() && BREEN_VEHICLE_VIEWCONTROL ) then
+	if ( !game.SinglePlayer() && CITADEL_ENDING ) then
 	
-		ents.FindByName( "pod_viewcontrol" )[ 1 ]:Fire( "Enable" )
-		ply:Spectate( OBS_MODE_ROAMING )
-		ply:SetViewEntity( ents.FindByName( "pod_viewcontrol" )[ 1 ] )
+		ply:RemoveAllItems()
 		ply:Freeze( true )
+	
+	end
+
+	if ( !game.SinglePlayer() && IsValid( PLAYER_VIEWCONTROL ) && ( PLAYER_VIEWCONTROL:GetClass() == "point_viewcontrol" ) ) then
+	
+		ply:SetViewEntity( PLAYER_VIEWCONTROL )
+		ply:SetNoDraw( true )
+		ply:DrawWorldModel( false )
+		ply:Freeze( true )
+	
+		timer.Simple( 0.01, function() if ( IsValid( ply ) ) then ply:SetMoveType( MOVETYPE_NOCLIP ); end; end )
 	
 	end
 
@@ -64,6 +75,7 @@ function hl2cMapEdit()
 		viewcontrol:Activate()
 		viewcontrol:SetParent( ents.FindByName( "pod" )[ 1 ] )
 		viewcontrol:Fire( "SetParentAttachment", "vehicle_driver_eyes" )
+		viewcontrol:Fire( "Enable", "", 0.1 )
 	
 	end
 
@@ -74,28 +86,71 @@ hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 -- Accept input
 function hl2cAcceptInput( ent, input, activator, caller, value )
 
-	if ( !game.SinglePlayer() && ( ent:GetName() == "logic_fade_view" ) && ( string.lower( input ) == "trigger" ) ) then
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "point_viewcontrol" ) ) then
 	
-		BREEN_VEHICLE_VIEWCONTROL = false
-	
-		if ( timer.Exists( "hl2cUpdatePlayerPosition" ) ) then timer.Destroy( "hl2cUpdatePlayerPosition" ) end
-	
-		GAMEMODE:CreateSpawnPoint( Vector( -1875, 887, 591 ), 265.5 )
-		for _, ply in pairs( player.GetAll() ) do
+		if ( ent:GetName() == "blackout_viewcontroller" ) then
 		
-			ply:UnSpectate()
-			ply:SetViewEntity()
-			ply:Freeze( false )
+			return true
 		
-			ply:Spawn()
+		end
+	
+		if ( string.lower( input ) == "enable" ) then
+		
+			PLAYER_VIEWCONTROL = ent
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ent )
+				ply:SetNoDraw( true )
+				ply:DrawWorldModel( false )
+				ply:Freeze( true )
+			
+				timer.Simple( 0.01, function() if ( IsValid( ply ) ) then ply:SetMoveType( MOVETYPE_NOCLIP ); end; end )
+			
+			end
+		
+			if ( !ent.doubleEnabled ) then
+			
+				ent.doubleEnabled = true
+				ent:Fire( "Enable" )
+			
+			end
+		
+		elseif ( string.lower( input ) == "disable" ) then
+		
+			PLAYER_VIEWCONTROL = nil
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ply )
+				ply:SetNoDraw( false )
+				ply:DrawWorldModel( true )
+				ply:Freeze( false )
+				ply:UnLock()
+			
+				timer.Simple( 0.01, function() if ( IsValid( ply ) ) then ply:SetMoveType( MOVETYPE_WALK ); end; end )
+			
+			end
+		
+			return true
 		
 		end
 	
 	end
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "logic_fade_view" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		if ( timer.Exists( "hl2cUpdatePlayerPosition" ) ) then timer.Destroy( "hl2cUpdatePlayerPosition" ); end
+	
+		GAMEMODE:CreateSpawnPoint( Vector( -1875, 887, 591 ), 265.5 )
+	
+		PLAYER_VIEWCONTROL:Fire( "Disable" )
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "clip_door_BreenElevator" ) && ( string.lower( input ) == "enable" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		for _, ply in ipairs( player.GetAll() ) do
 		
 			ply:SetVelocity( Vector( 0, 0, 0 ) )
 			ply:SetPos( Vector( -1968, 0, 600 ) )
@@ -108,7 +163,7 @@ function hl2cAcceptInput( ent, input, activator, caller, value )
 
 	if ( !game.SinglePlayer() && ( ent:GetName() == "lcs_al_doworst" ) && ( string.lower( input ) == "start" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		for _, ply in ipairs( player.GetAll() ) do
 		
 			ply:SetVelocity( Vector( 0, 0, 0 ) )
 			ply:SetPos( Vector( -1056, 464, 1340 ) )
@@ -121,7 +176,7 @@ function hl2cAcceptInput( ent, input, activator, caller, value )
 
 	if ( !game.SinglePlayer() && ( ent:GetName() == "citadel_scene_al_rift1" ) && ( string.lower( input ) == "start" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		for _, ply in ipairs( player.GetAll() ) do
 		
 			ply:SetVelocity( Vector( 0, 0, 0 ) )
 			ply:SetPos( Vector( -640, -400, 1320 ) )
@@ -142,24 +197,42 @@ function hl2cAcceptInput( ent, input, activator, caller, value )
 	
 	end
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "relay_breenwins" ) && ( string.lower( input ) == "trigger" ) ) then
+	
+		hook.Call( "RestartMap", GAMEMODE )
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "teleport_player_gman_1" ) && ( string.lower( input ) == "teleport" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		CITADEL_ENDING = true
+	
+		for _, ply in ipairs( player.GetAll() ) do
 		
+			ply:RemoveAllItems()
+			ply:SetNoDraw( true )
 			ply:SetPos( ent:GetPos() )
-			ply:Lock()
+			ply:Freeze( true )
 		
 		end
 	
 	end
 
+	if ( !game.SinglePlayer() && ( ent:GetName() == "view_gman_end_1" ) && ( string.lower( input ) == "enable" ) ) then
+	
+		hook.Call( "NextMap", GAMEMODE )
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetClass() == "player_speedmod" ) && ( string.lower( input ) == "modifyspeed" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		for _, ply in ipairs( player.GetAll() ) do
 		
 			ply:SetLaggedMovementValue( tonumber( value ) )
 		
 		end
+	
+		return true
 	
 	end
 
@@ -172,7 +245,7 @@ function hl2cThink()
 
 	if ( GetGlobalBool( "SUPER_GRAVITY_GUN" ) ) then
 	
-		for _, ent in pairs( ents.FindByClass( "weapon_physcannon" ) ) do
+		for _, ent in ipairs( ents.FindByClass( "weapon_physcannon" ) ) do
 		
 			if ( IsValid( ent ) && ent:IsWeapon() ) then
 			
@@ -182,7 +255,7 @@ function hl2cThink()
 		
 		end
 	
-		for _, ent in pairs( ents.FindByClass( "weapon_*" ) ) do
+		for _, ent in ipairs( ents.FindByClass( "weapon_*" ) ) do
 		
 			if ( IsValid( ent ) && ent:IsWeapon() && ( ent:GetClass() != "weapon_physcannon" ) && ( !IsValid( ent:GetOwner() ) || ( IsValid( ent:GetOwner() ) && ent:GetOwner():IsPlayer() ) ) ) then
 			
@@ -203,7 +276,7 @@ if ( !game.SinglePlayer() ) then
 	-- Update player position to the vehicle
 	function hl2cUpdatePlayerPosition()
 	
-		for _, ply in pairs( team.GetPlayers( TEAM_ALIVE ) ) do
+		for _, ply in ipairs( team.GetPlayers( TEAM_ALIVE ) ) do
 		
 			if ( IsValid( ply ) && IsValid( ents.FindByName( "pod" )[ 1 ] ) && ply:Alive() ) then
 			

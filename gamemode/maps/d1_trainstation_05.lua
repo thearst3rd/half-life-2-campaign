@@ -5,7 +5,6 @@ TRIGGER_CHECKPOINT = {
 	{ Vector( -10461, -4749, 319 ), Vector( -10271, -4689, 341 ) }
 }
 
-TRAINSTATION_VIEWCONTROL = false
 TRAINSTATION_REMOVESUIT = true
 
 
@@ -19,8 +18,9 @@ function hl2cPlayerSpawn( ply )
 	
 	end
 
-	if ( TRAINSTATION_VIEWCONTROL ) then
+	if ( !game.SinglePlayer() && IsValid( PLAYER_VIEWCONTROL ) && ( PLAYER_VIEWCONTROL:GetClass() == "point_viewcontrol" ) ) then
 	
+		ply:SetViewEntity( PLAYER_VIEWCONTROL )
 		ply:Freeze( true )
 	
 	end
@@ -54,24 +54,38 @@ hook.Add( "EntityRemoved", "hl2cEntityRemoved", hl2cEntityRemoved )
 -- Accept input
 function hl2cAcceptInput( ent, input, activator, caller, value )
 
-	if ( ( ent:GetName() == "viewcontrol_ickycam" ) && ( string.lower( input ) == "enable" ) ) then
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "point_viewcontrol" ) ) then
 	
-		TRAINSTATION_VIEWCONTROL = true
-		for _, ply in pairs( player.GetAll() ) do
+		if ( string.lower( input ) == "enable" ) then
 		
-			ply:SetVelocity( Vector( 0, 0, 0 ) )
-			ply:Freeze( true )
+			PLAYER_VIEWCONTROL = ent
 		
-		end
-	
-	end
-
-	if ( ( ent:GetName() == "viewcontrol_ickycam" ) && ( string.lower( input ) == "disable" ) ) then
-	
-		TRAINSTATION_VIEWCONTROL = false
-		for _, ply in pairs( player.GetAll() ) do
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ent )
+				ply:Freeze( true )
+			
+			end
 		
-			ply:Freeze( false )
+			if ( !ent.doubleEnabled ) then
+			
+				ent.doubleEnabled = true
+				ent:Fire( "Enable" )
+			
+			end
+		
+		elseif ( string.lower( input ) == "disable" ) then
+		
+			PLAYER_VIEWCONTROL = nil
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ply )
+				ply:Freeze( false )
+			
+			end
+		
+			return true
 		
 		end
 	
@@ -101,6 +115,8 @@ function hl2cAcceptInput( ent, input, activator, caller, value )
 			ply:SetLaggedMovementValue( tonumber( value ) )
 		
 		end
+	
+		return true
 	
 	end
 

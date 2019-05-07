@@ -8,7 +8,6 @@ TRIGGER_CHECKPOINT = {
 	{ Vector( -3609, -338, -24 ), Vector( -3268, -141, 54 ) }
 }
 
-TRAINSTATION_VIEWCONTROL = true
 TRAINSTATION_LEAVEBARNEYDOOROPEN = false
 
 
@@ -16,6 +15,7 @@ TRAINSTATION_LEAVEBARNEYDOOROPEN = false
 function hl2cPlayerInitialSpawn( ply )
 
 	ply:SendLua( "table.RemoveByValue( GODLIKE_NPCS, \"npc_barney\" )" )
+	ply:SendLua( "table.RemoveByValue( FRIENDLY_NPCS, \"npc_citizen\" )" )
 
 end
 hook.Add( "PlayerInitialSpawn", "hl2cPlayerInitialSpawn", hl2cPlayerInitialSpawn )
@@ -27,10 +27,9 @@ function hl2cPlayerSpawn( ply )
 	ply:RemoveSuit()
 	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ); end; end )
 
-	if ( TRAINSTATION_VIEWCONTROL ) then
+	if ( !game.SinglePlayer() && IsValid( PLAYER_VIEWCONTROL ) && ( PLAYER_VIEWCONTROL:GetClass() == "point_viewcontrol" ) ) then
 	
-		ents.FindByName( "viewcontrol_final" )[ 1 ]:Fire( "Enable" )
-		ply:SetViewEntity( ents.FindByName( "viewcontrol_final" )[ 1 ] )
+		ply:SetViewEntity( PLAYER_VIEWCONTROL )
 		ply:Freeze( true )
 	
 	end
@@ -54,32 +53,72 @@ function hl2cMapEdit()
 	end
 
 	table.RemoveByValue( GODLIKE_NPCS, "npc_barney" )
+	table.RemoveByValue( FRIENDLY_NPCS, "npc_citizen" )
 
 end
 hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 
 
 -- Accept input
-function hl2cAcceptInput( ent, input, activator )
+function hl2cAcceptInput( ent, input )
 
-	if ( ( ent:GetName() == "viewcontrol_final" ) && ( string.lower( input ) == "disable" ) ) then
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "point_viewcontrol" ) ) then
 	
-		TRAINSTATION_VIEWCONTROL = false
-		for _, ply in pairs( player.GetAll() ) do
+		if ( string.lower( input ) == "enable" ) then
 		
-			ply:SetViewEntity()
-			ply:Freeze( false )
+			PLAYER_VIEWCONTROL = ent
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ent )
+				ply:Freeze( true )
+			
+			end
+		
+			if ( !ent.doubleEnabled ) then
+			
+				ent.doubleEnabled = true
+				ent:Fire( "Enable" )
+			
+			end
+		
+		elseif ( string.lower( input ) == "disable" ) then
+		
+			PLAYER_VIEWCONTROL = nil
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ply )
+				ply:Freeze( false )
+			
+			end
+		
+			return true
 		
 		end
 	
 	end
 
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "env_zoom" ) && ( string.lower( input ) == "zoom" ) ) then
+	
+		for _, ply in ipairs( player.GetAll() ) do
+		
+			local keyValues = ent:GetKeyValues()
+			ply:SetFOV( tonumber( keyValues[ "FOV" ] ), tonumber( keyValues[ "Rate" ] ) )
+		
+		end
+	
+		return true
+	
+	end
+
 	if ( !game.SinglePlayer() && ( ent:GetName() == "point_teleport_destination" ) && ( string.lower( input ) == "teleport" ) ) then
 	
-		for _, ply in pairs( player.GetAll() ) do
+		for _, ply in ipairs( player.GetAll() ) do
 		
 			ply:SetVelocity( Vector( 0, 0, 0 ) )
 			ply:SetPos( ent:GetPos() )
+			ply:SetFOV( 0, 0 )
 		
 		end
 	

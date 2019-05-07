@@ -73,6 +73,13 @@ function GM:CanPlayerSuicide( ply )
 	
 	end
 
+	if ( !ply.vulnerable ) then
+	
+		ply:ChatPrint( "You're currently invulnerable. Suicide attempt blocked!" )
+		return false
+	
+	end
+
 	return true
 
 end 
@@ -410,13 +417,6 @@ function GM:Initialize()
 	}
 	list.Set( "Vehicles", "Jalopy", jalopy )
 
-	-- Warning for Linux dedicated servers
-	if ( game.IsDedicated() && system.IsLinux() ) then
-	
-		print( "Warning: Linux dedicated servers may have issues with Half-Life 2 scenes! Expect things to break." )
-	
-	end
-
 end
 
 
@@ -638,12 +638,12 @@ function GM:OnNPCKilled( npc, killer, weapon )
 	end 
 
 	-- Defaults
- 	local weaponClass = "World" 
- 	local killerClass = "World" 
+	local weaponClass = "World" 
+	local killerClass = "World" 
 
 	-- Change to actual values if not default
- 	if ( IsValid( weapon ) ) then weaponClass = weapon:GetClass(); end 
- 	if ( IsValid( killer ) ) then killerClass = killer:GetClass(); end 
+	if ( IsValid( weapon ) ) then weaponClass = weapon:GetClass(); end 
+	if ( IsValid( killer ) ) then killerClass = killer:GetClass(); end 
 
 	-- Send a message
 	if ( IsValid( killer ) && killer:IsPlayer() ) then
@@ -718,7 +718,7 @@ function GM:PlayerDisconnected( ply )
 
 	ply:RemoveVehicle()
 
-	if ( game.IsDedicated() && ( player.GetCount() == 1 ) ) then
+	if ( game.IsDedicated() && ( player.GetCount() <= 1 ) ) then
 	
 		game.ConsoleCommand( "changelevel "..game.GetMap().."\n" )
 	
@@ -994,7 +994,7 @@ function GM:PlayerSpawn( ply )
 	-- If the player died before, kill them again
 	if ( table.HasValue( deadPlayers, ply:SteamID() ) ) then
 	
-		ply:PrintMessage( HUD_PRINTTALK, "You may not respawn until the next map." )
+		ply:PrintMessage( HUD_PRINTTALK, "You cannot respawn now." )
 	
 		ply.deathPos = ply:EyePos()
 	
@@ -1241,11 +1241,11 @@ function GM:Think()
 	-- Change the difficulty according to number of players
 	if ( hl2c_server_dynamic_skill_level:GetBool() && ( player.GetCount() > 0 ) && ( updateDifficulty < CurTime() ) ) then
 	
-		difficulty = math.Clamp( math.Remap( player.GetCount(), 4, 16, 1, 3 ), DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
+		difficulty = math.Clamp( player.GetCount() / 32 * 3, DIFFICULTY_RANGE[ 1 ], DIFFICULTY_RANGE[ 2 ] )
 		game.ConsoleCommand( "skill "..math.floor( difficulty ).."\n" )
 	
 		-- Do not update all the time
-		updateDifficulty = CurTime() + 2
+		updateDifficulty = CurTime() + 5
 	
 	end
 

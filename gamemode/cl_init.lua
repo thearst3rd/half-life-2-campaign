@@ -128,11 +128,12 @@ function GM:HUDPaint()
 		end
 	
 		-- AUX bar
-		if ( energy < 100 ) then
+		lerpedEnergy = Lerp( RealFrameTime() * 10, lerpedEnergy, energy )
+		if ( lerpedEnergy <= 99.9 ) then
 		
 			draw.RoundedBox( 4, ( ScrH() - h * 0.132 ) / 27.75, ScrH() - h * 0.132, h * 0.026 * 8.2, h * 0.026, Color( 0, 0, 0, 76 ) )
 			surface.SetDrawColor( 255, 235, 20, 200 )
-			surface.DrawRect( ( ScrH() - h * 0.126 ) / 22.3, ScrH() - h * 0.126, ( energy / 100 ) * ( h * 0.015 * 12.75 ), h * 0.015 )
+			surface.DrawRect( ( ScrH() - h * 0.126 ) / 22.3, ScrH() - h * 0.126, ( lerpedEnergy / 100 ) * ( h * 0.015 * 12.75 ), h * 0.015 )
 		
 		end
 	
@@ -195,7 +196,7 @@ function GM:HUDShouldDraw( name )
 		
 		end
 	
- 	end
+	end
 
 	return true
 
@@ -207,10 +208,10 @@ function GM:Initialize()
 
 	-- Initial variables for client
 	energy = 100
+	lerpedEnergy = 0
 	self.ShowScoreboard = false
 	showNav = false
 	scoreboard = nil
-	haloPlayerTable = {}
 
 	-- Fonts we will need later
 	surface.CreateFont( "roboto16", { size = 16, weight = 400, antialias = true, additive = false, font = "Roboto" } )

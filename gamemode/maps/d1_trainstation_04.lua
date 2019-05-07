@@ -5,8 +5,6 @@ TRIGGER_CHECKPOINT = {
 	{ Vector( -7665, -4041, -257 ), Vector( -7653, -3879, -143 ) }
 }
 
-TRAINSTATION_VIEWCONTROL = false
-
 
 -- Player spawns
 function hl2cPlayerSpawn( ply )
@@ -14,10 +12,9 @@ function hl2cPlayerSpawn( ply )
 	ply:RemoveSuit()
 	timer.Simple( 0.01, function() if ( IsValid( ply ) ) then GAMEMODE:SetPlayerSpeed( ply, 150, 150 ); end; end )
 
-	if ( TRAINSTATION_VIEWCONTROL ) then
+	if ( !game.SinglePlayer() && IsValid( PLAYER_VIEWCONTROL ) && ( PLAYER_VIEWCONTROL:GetClass() == "point_viewcontrol" ) ) then
 	
-		ents.FindByName( "blackout_viewcontroller" )[ 1 ]:Fire( "Enable" )
-		ply:SetViewEntity( ents.FindByName( "blackout_viewcontroller" )[ 1 ] )
+		ply:SetViewEntity( PLAYER_VIEWCONTROL )
 		ply:Freeze( true )
 	
 	end
@@ -33,9 +30,9 @@ function hl2cMapEdit()
 	
 		ents.FindByName( "kickdown_relay" )[ 1 ]:Remove()
 	
-		for _, ent in pairs( ents.GetAll() ) do
+		for _, ent in ipairs( ents.GetAll() ) do
 		
-			if ( ent:GetPos() == Vector( -7818, -4128, -176 ) ) then ent:Remove() end
+			if ( ent:GetPos() == Vector( -7818, -4128, -176 ) ) then ent:Remove(); end
 		
 		end
 	
@@ -48,25 +45,38 @@ hook.Add( "MapEdit", "hl2cMapEdit", hl2cMapEdit )
 -- Accept input
 function hl2cAcceptInput( ent, input )
 
-	if ( ( ent:GetName() == "blackout_viewcontroller" ) && ( string.lower( input ) == "enable" ) ) then
+	if ( !game.SinglePlayer() && ( ent:GetClass() == "point_viewcontrol" ) ) then
 	
-		TRAINSTATION_VIEWCONTROL = true
-		for _, ply in pairs( player.GetAll() ) do
+		if ( string.lower( input ) == "enable" ) then
 		
-			ply:SetViewEntity( ent )
-			ply:Freeze( true )
+			PLAYER_VIEWCONTROL = ent
 		
-		end
-	
-	end
-
-	if ( ( ent:GetName() == "blackout_viewcontroller" ) && ( string.lower( input ) == "disable" ) ) then
-	
-		TRAINSTATION_VIEWCONTROL = false
-		for _, ply in pairs( player.GetAll() ) do
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ent )
+				ply:Freeze( true )
+			
+			end
 		
-			ply:SetViewEntity()
-			ply:Freeze( false )
+			if ( !ent.doubleEnabled ) then
+			
+				ent.doubleEnabled = true
+				ent:Fire( "Enable" )
+			
+			end
+		
+		elseif ( string.lower( input ) == "disable" ) then
+		
+			PLAYER_VIEWCONTROL = nil
+		
+			for _, ply in ipairs( player.GetAll() ) do
+			
+				ply:SetViewEntity( ply )
+				ply:Freeze( false )
+			
+			end
+		
+			return true
 		
 		end
 	
@@ -78,6 +88,7 @@ function hl2cAcceptInput( ent, input )
 		
 			ply:SetPos( Vector( -7740, -3960, 407 ) )
 			ply:SetEyeAngles( Angle( 0, 0, 0 ) )
+			ply:SetFOV( 0, 1 )
 		
 		end
 	
