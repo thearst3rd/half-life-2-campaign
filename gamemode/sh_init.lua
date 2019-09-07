@@ -148,7 +148,7 @@ function GM:PlayerPostThink( ply )
 		
 			-- Don't use the gamemode's own energy system if they're using the 'H.E.V Mk V Auxiliary Power' addon by DyaMetR
 			local sv_auxpow_enabled = GetConVar( "sv_auxpow_enabled" );
-			if ( sv_auxpow_enabled:GetInt() < 1 ) then
+			if ( sv_auxpow_enabled == nil || sv_auxpow_enabled:GetInt() < 1 ) then
 
 				-- Sprinting and water level
 				if ( ply.nextEnergyCycle < CurTime() ) then
