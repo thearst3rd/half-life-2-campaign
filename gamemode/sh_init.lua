@@ -29,6 +29,10 @@ GODLIKE_NPCS = {
 }
 
 
+-- Console variables
+local sv_auxpow_enabled = GetConVar( "sv_auxpow_enabled" )
+
+
 -- Create the teams that we are going to use throughout the game
 function GM:CreateTeams()
 
@@ -147,8 +151,7 @@ function GM:PlayerPostThink( ply )
 			end
 		
 			-- Don't use the gamemode's own energy system if they're using the 'H.E.V Mk V Auxiliary Power' addon by DyaMetR
-			local sv_auxpow_enabled = GetConVar( "sv_auxpow_enabled" );
-			if ( sv_auxpow_enabled == nil || sv_auxpow_enabled:GetInt() < 1 ) then
+			if ( sv_auxpow_enabled == nil || !sv_auxpow_enabled:GetBool() ) then
 
 				-- Sprinting and water level
 				if ( ply.nextEnergyCycle < CurTime() ) then
@@ -236,10 +239,10 @@ function GM:PlayerPostThink( ply )
 
 			else
 
-				-- Set the energy to max if it isn't already.
+				-- Set the energy to max if it isn't already
 				if ( ply.energy != 100 ) then
 
-					ply.energy = 100;
+					ply.energy = 100
 
 					net.Start( "UpdateEnergy" )
 						net.WriteFloat( ply.energy )
