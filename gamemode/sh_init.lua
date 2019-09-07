@@ -29,6 +29,10 @@ GODLIKE_NPCS = {
 }
 
 
+-- Console variables
+local sv_auxpow_enabled = GetConVar( "sv_auxpow_enabled" )
+
+
 -- Create the teams that we are going to use throughout the game
 function GM:CreateTeams()
 
@@ -146,88 +150,106 @@ function GM:PlayerPostThink( ply )
 			
 			end
 		
-			-- Sprinting and water level
-			if ( ply.nextEnergyCycle < CurTime() ) then
-			
-				if ( !ply:InVehicle() && ( ply:GetVelocity():Length() > ply:GetWalkSpeed() ) && ply:KeyDown( IN_SPEED ) && ( ply.energy > 0 ) ) then
+			-- Don't use the gamemode's own energy system if they're using the 'H.E.V Mk V Auxiliary Power' addon by DyaMetR
+			if ( sv_auxpow_enabled == nil || !sv_auxpow_enabled:GetBool() ) then
+
+				-- Sprinting and water level
+				if ( ply.nextEnergyCycle < CurTime() ) then
 				
-					ply.energy = ply.energy - 2.5
+					if ( !ply:InVehicle() && ( ply:GetVelocity():Length() > ply:GetWalkSpeed() ) && ply:KeyDown( IN_SPEED ) && ( ply.energy > 0 ) ) then
+					
+						ply.energy = ply.energy - 2.5
+					
+					elseif ( ( ply:WaterLevel() == 3 ) ) then
+					
+						ply.energy = ply.energy - 0.75
+					
+					elseif ( flashlightDrainsAUX && !ply:InVehicle() && ply:FlashlightIsOn() && ( ply.energy > 0 ) ) then
+					
+						ply.energy = ply.energy - 0.25
+					
+					elseif ( ply.energy < 100 ) then
+					
+						ply.energy = ply.energy + 1.25
+					
+					end
 				
-				elseif ( ( ply:WaterLevel() == 3 ) ) then
+					ply.energy = math.Clamp( ply.energy, 0, 100 )
 				
-					ply.energy = ply.energy - 0.75
-				
-				elseif ( flashlightDrainsAUX && !ply:InVehicle() && ply:FlashlightIsOn() && ( ply.energy > 0 ) ) then
-				
-					ply.energy = ply.energy - 0.25
-				
-				elseif ( ply.energy < 100 ) then
-				
-					ply.energy = ply.energy + 1.25
-				
-				end
-			
-				ply.energy = math.Clamp( ply.energy, 0, 100 )
-			
-				net.Start( "UpdateEnergy" )
-					net.WriteFloat( ply.energy )
-				net.Send( ply )
-			
-				ply.nextEnergyCycle = CurTime() + 0.1
-			
-			end
-		
-			-- Now check if they have enough energy 
-			if ( ply.energy <= 0 ) then
-			
-				if ( !ply:GetNWBool( "sprintDisabled", false ) ) then
-				
-					if ( flashlightDrainsAUX && ply:FlashlightIsOn() ) then ply:Flashlight( false ) end
-					ply:SetNWBool( "sprintDisabled", true )
-				
-				end
-			
-				-- Now remove health if underwater
-				if ( ( ply:WaterLevel() == 3 ) && ( ply.nextSetHealth < CurTime() ) ) then
-				
-					ply.nextSetHealth = CurTime() + 1
-					ply:SetHealth( ply:Health() - 10 )
-				
-					net.Start( "DrowningEffect" )
+					net.Start( "UpdateEnergy" )
+						net.WriteFloat( ply.energy )
 					net.Send( ply )
 				
-					if ( ply:Alive() && ( ply:Health() <= 0 ) ) then
+					ply.nextEnergyCycle = CurTime() + 0.1
+				
+				end
+			
+				-- Now check if they have enough energy 
+				if ( ply.energy <= 0 ) then
+				
+					if ( !ply:GetNWBool( "sprintDisabled", false ) ) then
 					
-						ply:Kill()
+						if ( flashlightDrainsAUX && ply:FlashlightIsOn() ) then ply:Flashlight( false ) end
+						ply:SetNWBool( "sprintDisabled", true )
 					
-					else
+					end
+				
+					-- Now remove health if underwater
+					if ( ( ply:WaterLevel() == 3 ) && ( ply.nextSetHealth < CurTime() ) ) then
 					
-						ply.healthRemoved = ply.healthRemoved + 10
+						ply.nextSetHealth = CurTime() + 1
+						ply:SetHealth( ply:Health() - 10 )
+					
+						net.Start( "DrowningEffect" )
+						net.Send( ply )
+					
+						if ( ply:Alive() && ( ply:Health() <= 0 ) ) then
+						
+							ply:Kill()
+						
+						else
+						
+							ply.healthRemoved = ply.healthRemoved + 10
+						
+						end
+					
+					end
+				
+				elseif ( ( ply.energy >= 25 ) && ply:GetNWBool( "sprintDisabled", false ) ) then
+				
+					ply:SetNWBool( "sprintDisabled", false )
+				
+				end
+			
+				-- Give back health if we can
+				if ( ( ply:WaterLevel() <= 2 ) && ( ply.nextSetHealth < CurTime() ) && ( ply.healthRemoved > 0 ) ) then
+				
+					ply.nextSetHealth = CurTime() + 2
+					ply:SetHealth( ply:Health() + 10 )
+					ply.healthRemoved = ply.healthRemoved - 10
+				
+					if ( ply:Health() > ply:GetMaxHealth() ) then
+					
+						ply:SetHealth( ply:GetMaxHealth() )
+						ply.healthRemoved = 0
 					
 					end
 				
 				end
-			
-			elseif ( ( ply.energy >= 25 ) && ply:GetNWBool( "sprintDisabled", false ) ) then
-			
-				ply:SetNWBool( "sprintDisabled", false )
-			
-			end
-		
-			-- Give back health if we can
-			if ( ( ply:WaterLevel() <= 2 ) && ( ply.nextSetHealth < CurTime() ) && ( ply.healthRemoved > 0 ) ) then
-			
-				ply.nextSetHealth = CurTime() + 2
-				ply:SetHealth( ply:Health() + 10 )
-				ply.healthRemoved = ply.healthRemoved - 10
-			
-				if ( ply:Health() > ply:GetMaxHealth() ) then
-				
-					ply:SetHealth( ply:GetMaxHealth() )
-					ply.healthRemoved = 0
-				
+
+			else
+
+				-- Set the energy to max if it isn't already
+				if ( ply.energy != 100 ) then
+
+					ply.energy = 100
+
+					net.Start( "UpdateEnergy" )
+						net.WriteFloat( ply.energy )
+					net.Send( ply )
+
 				end
-			
+
 			end
 		
 			-- Get the ammo limit convar
