@@ -75,6 +75,12 @@ end
 -- Player input changes
 function GM:StartCommand( ply, ucmd )
 
+	if ( ucmd:KeyDown( IN_SPEED ) && IsValid( ply ) && !ply:IsSuitEquipped() ) then
+	
+		ucmd:RemoveKey( IN_SPEED )
+	
+	end
+
 	if ( ucmd:KeyDown( IN_WALK ) && IsValid( ply ) && !ply:IsSuitEquipped() ) then
 	
 		ucmd:RemoveKey( IN_WALK )
