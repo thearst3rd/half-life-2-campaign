@@ -20,14 +20,6 @@ if ( !file.IsDir( "half-life_2_campaign/client", "DATA" ) ) then
 end
 
 
--- Client only constants
-DROWNING_SOUNDS = {
-	"player/pl_drown1.wav",
-	"player/pl_drown2.wav",
-	"player/pl_drown3.wav"
-}
-
-
 -- Called by ShowScoreboard
 function GM:CreateScoreboard()
 
@@ -41,17 +33,6 @@ function GM:CreateScoreboard()
 	scoreboard = vgui.Create( "scoreboard" )
 
 end
-
-
--- This creates the drowning effect
-function DrowningEffect( len )
-
-	surface.PlaySound( DROWNING_SOUNDS[ math.random( 1, #DROWNING_SOUNDS ) ] )
-	deAlpha = 100
-	deAlphaUpdate = 0
-
-end
-net.Receive( "DrowningEffect", DrowningEffect )
 
 
 -- Do not want!
@@ -98,42 +79,6 @@ function GM:HUDPaint()
 			local checkpointPositionDeg = 0 - math.Round( math.deg( checkpointPositionRad ) )
 			surface.SetTexture( surface.GetTextureID( "hl2c_nav_pointer" ) )
 			surface.DrawTexturedRectRotated( math.cos( checkpointPositionRad ) * r + centerX, math.sin( checkpointPositionRad ) * r + centerY, 32, 32, checkpointPositionDeg + 90 )
-		
-		end
-	
-	end
-
-	-- If dead, then draw spectator letterbox
-	if ( LocalPlayer():Team() == TEAM_DEAD ) then
-	
-		surface.SetDrawColor( 0, 0, 0, 255 )
-		surface.DrawRect( 0, 0, w, h * 0.10 )
-		surface.DrawRect( 0, h - h * 0.10, w, h * 0.10 )
-	
-	else
-	
-		-- Drowning Effect
-		if ( deAlpha && ( deAlpha > 0 ) ) then
-		
-			if ( CurTime() >= ( deAlphaUpdate + 0.01 ) ) then
-			
-				deAlpha = deAlpha - 1
-				deAlphaUpdate = CurTime()
-			
-			end
-		
-			surface.SetDrawColor( 0, 0, 255, deAlpha )
-			surface.DrawRect( 0, 0, w, h )
-		
-		end
-	
-		-- AUX bar
-		lerpedEnergy = Lerp( RealFrameTime() * 10, lerpedEnergy, energy )
-		if ( lerpedEnergy <= 99.9 ) then
-		
-			draw.RoundedBox( 4, ( ScrH() - h * 0.132 ) / 27.75, ScrH() - h * 0.132, h * 0.026 * 8.2, h * 0.026, Color( 0, 0, 0, 76 ) )
-			surface.SetDrawColor( 255, 235, 20, 200 )
-			surface.DrawRect( ( ScrH() - h * 0.126 ) / 22.3, ScrH() - h * 0.126, ( lerpedEnergy / 100 ) * ( h * 0.015 * 12.75 ), h * 0.015 )
 		
 		end
 	
@@ -207,8 +152,6 @@ end
 function GM:Initialize()
 
 	-- Initial variables for client
-	energy = 100
-	lerpedEnergy = 0
 	self.ShowScoreboard = false
 	showNav = false
 	scoreboard = nil
@@ -241,7 +184,7 @@ function GM:Initialize()
 	language.Add( "npc_combine_s", "Combine Soldier" )
 	language.Add( "npc_strider", "Strider" )
 
-	-- Run this command for a more HL2 style gameplay
+	-- Run this command for a more HL2 style radiosity
 	RunConsoleCommand( "r_radiosity", "4" )
 
 end
@@ -442,12 +385,3 @@ function SetCheckpointPosition( len )
 
 end
 net.Receive( "SetCheckpointPosition", SetCheckpointPosition )
-
-
--- Called by server Think()
-function UpdateEnergy( len )
-
-	energy = net.ReadFloat()
-
-end
-net.Receive( "UpdateEnergy", UpdateEnergy )

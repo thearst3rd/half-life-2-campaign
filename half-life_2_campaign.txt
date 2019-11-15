@@ -9,32 +9,33 @@
 	{
 		1
 		{
-			"name"		"hl2c_admin_physgun"
-			"text"		"[ADMIN] Physics Gun"
+			"name"		"hl2c_server_force_gamerules"
+			"text"		"Force HL2 gamerules (AUX Power & Max Ammo)"
 			"type"		"CheckBox"
-			"default"	"0"
+			"default"	"1"
+			"singleplayer"	"1"
 		}
 	
 		2
 		{
-			"name"		"hl2c_admin_noclip"
-			"text"		"[ADMIN] No Clip"
+			"name"		"hl2c_admin_physgun"
+			"text"		"Give admins the physics gun"
 			"type"		"CheckBox"
 			"default"	"0"
 		}
 	
 		3
 		{
-			"name"		"hl2c_server_ammo_limit"
-			"text"		"[SERVER] Ammo Limit"
+			"name"		"hl2c_admin_noclip"
+			"text"		"Allow admins to use noclip"
 			"type"		"CheckBox"
-			"default"	"1"
+			"default"	"0"
 		}
 	
 		4
 		{
 			"name"		"hl2c_server_custom_playermodels"
-			"text"		"[SERVER] Custom Player Models"
+			"text"		"Allow usage of custom playermodels"
 			"type"		"CheckBox"
 			"default"	"0"
 		}
@@ -42,7 +43,7 @@
 		5
 		{
 			"name"		"hl2c_server_checkpoint_respawn"
-			"text"		"[SERVER] Checkpoint Respawning"
+			"text"		"Make dead players respawn at checkpoints"
 			"type"		"CheckBox"
 			"default"	"0"
 		}
@@ -50,7 +51,7 @@
 		6
 		{
 			"name"		"hl2c_server_dynamic_skill_level"
-			"text"		"[SERVER] Dynamic Skill Leveling"
+			"text"		"Dynamically change the skill level based on player count"
 			"type"		"CheckBox"
 			"default"	"1"
 		}
@@ -58,7 +59,7 @@
 		7
 		{
 			"name"		"hl2c_server_lag_compensation"
-			"text"		"[SERVER] NPC Lag Compensation"
+			"text"		"Use NPC Lag Compensation"
 			"type"		"CheckBox"
 			"default"	"1"
 		}
@@ -66,7 +67,7 @@
 		8
 		{
 			"name"		"hl2c_server_player_respawning"
-			"text"		"[SERVER] Player Respawning"
+			"text"		"Players can never permanently die"
 			"type"		"CheckBox"
 			"default"	"0"
 		}
@@ -74,7 +75,7 @@
 		9
 		{
 			"name"		"hl2c_server_jeep_passenger_seat"
-			"text"		"[SERVER] Jeep Passenger Seat"
+			"text"		"Give Jeeps a passenger seat"
 			"type"		"CheckBox"
 			"default"	"0"
 		}

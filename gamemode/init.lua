@@ -38,7 +38,7 @@ end
 -- Create console variables to make these config vars easier to access
 local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, FCVAR_NOTIFY )
 local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVAR_NOTIFY )
-local hl2c_server_ammo_limit = CreateConVar( "hl2c_server_ammo_limit", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_server_force_gamerules = CreateConVar( "hl2c_server_force_gamerules", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_custom_playermodels = CreateConVar( "hl2c_server_custom_playermodels", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
 local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
@@ -322,7 +322,6 @@ function GM:Initialize()
 	checkpointPositions = {}
 	nextAreaOpenTime = 0
 	startingWeapons = {}
-	flashlightDrainsAUX = true
 
 	-- Network strings
 	util.AddNetworkString( "SetCheckpointPosition" )
@@ -331,8 +330,6 @@ function GM:Initialize()
 	util.AddNetworkString( "RestartMap" )
 	util.AddNetworkString( "ShowHelp" )
 	util.AddNetworkString( "ShowTeam" )
-	util.AddNetworkString( "UpdateEnergy" )
-	util.AddNetworkString( "DrowningEffect" )
 	util.AddNetworkString( "UpdatePlayerModel" )
 
 	-- We want regular fall damage and the ai to attack players and stuff
@@ -340,7 +337,6 @@ function GM:Initialize()
 	game.ConsoleCommand( "ai_ignoreplayers 0\n" )
 	game.ConsoleCommand( "ai_serverragdolls 0\n" )
 	game.ConsoleCommand( "npc_citizen_auto_player_squad 1\n" )
-	game.ConsoleCommand( "hl2_episodic 0\n" )
 	game.ConsoleCommand( "mp_falldamage 1\n" )
 	game.ConsoleCommand( "physgun_limited 1\n" )
 	game.ConsoleCommand( "sv_alltalk 1\n" )
@@ -355,6 +351,18 @@ function GM:Initialize()
 	if ( string.find( game.GetMap(), "ep1_" ) || string.find( game.GetMap(), "ep2_" ) ) then
 	
 		game.ConsoleCommand( "hl2_episodic 1\n" )
+	
+	else
+	
+		game.ConsoleCommand( "hl2_episodic 0\n" )
+	
+	end
+
+	-- Force game rules such as aux power and max ammo
+	if ( hl2c_server_force_gamerules:GetBool() ) then
+	
+		if ( !AUXPOW ) then game.ConsoleCommand( "gmod_suit 1\n" ); end
+		game.ConsoleCommand( "gmod_maxammo 0\n" )
 	
 	end
 
@@ -525,48 +533,7 @@ function GM:InitPostEntity()
 	-- Call a map edit (used by map lua hooks)
 	hook.Call( "MapEdit", GAMEMODE )
 
-	-- Update ammo tables
-	hook.Call( "UpdateAmmoTables", GAMEMODE )
-
 end
-
-
--- Called when we need to update the ammo items and ammo max values
-function GM:UpdateAmmoTables()
-
-	-- Ammo items
-	AMMO_ITEMS = {
-		[ "item_ammo_357" ] = game.GetAmmoID( "357" ),
-		[ "item_ammo_357_large" ] = game.GetAmmoID( "357" ),
-		[ "item_ammo_ar2" ] = game.GetAmmoID( "AR2" ),
-		[ "item_ammo_ar2_large" ] = game.GetAmmoID( "AR2" ),
-		[ "item_ammo_ar2_altfire" ] = game.GetAmmoID( "AR2AltFire" ),
-		[ "item_box_buckshot" ] = game.GetAmmoID( "Buckshot" ),
-		[ "item_ammo_crossbow" ] = game.GetAmmoID( "XBowBolt" ),
-		[ "item_ammo_pistol" ] = game.GetAmmoID( "Pistol" ),
-		[ "item_ammo_pistol_large" ] = game.GetAmmoID( "Pistol" ),
-		[ "item_rpg_round" ] = game.GetAmmoID( "RPG_Round" ),
-		[ "item_ammo_smg1" ] = game.GetAmmoID( "SMG1" ),
-		[ "item_ammo_smg1_large" ] = game.GetAmmoID( "SMG1" ),
-		[ "item_ammo_smg1_grenade" ] = game.GetAmmoID( "SMG1_Grenade" )
-	}
-
-	-- Ammo max values
-	AMMO_MAX_VALUES = {
-		[ game.GetAmmoID( "357" ) ] = GetConVarNumber( "sk_max_357" ),
-		[ game.GetAmmoID( "AR2" ) ] = GetConVarNumber( "sk_max_ar2" ),
-		[ game.GetAmmoID( "AR2AltFire" ) ] = GetConVarNumber( "sk_max_ar2_altfire" ),
-		[ game.GetAmmoID( "Buckshot" ) ] = GetConVarNumber( "sk_max_buckshot" ),
-		[ game.GetAmmoID( "XBowBolt" ) ] = GetConVarNumber( "sk_max_crossbow" ),
-		[ game.GetAmmoID( "Grenade" ) ] = GetConVarNumber( "sk_max_grenade" ),
-		[ game.GetAmmoID( "Pistol" ) ] = GetConVarNumber( "sk_max_pistol" ),
-		[ game.GetAmmoID( "RPG_Round" ) ] = GetConVarNumber( "sk_max_rpg_round" ),
-		[ game.GetAmmoID( "SMG1" ) ] = GetConVarNumber( "sk_max_smg1" ),
-		[ game.GetAmmoID( "SMG1_Grenade" ) ] = GetConVarNumber( "sk_max_smg1_grenade" )
-	}
-
-end
-concommand.Add( "hl2c_update_ammo_tables", function( ply ) if ( IsValid( ply ) && ply:IsAdmin() ) then hook.Call( "UpdateAmmoTables", GAMEMODE ); end end )
 
 
 -- Called automatically or by the console command
@@ -672,12 +639,6 @@ function GM:PlayerCanPickupWeapon( ply, wep )
 	
 	end
 
-	if ( hl2c_server_ammo_limit:GetBool() && ply:HasWeapon( wep:GetClass() ) && ( wep:GetPrimaryAmmoType() > 0 ) && AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= AMMO_MAX_VALUES[ wep:GetPrimaryAmmoType() ] ) ) then
-	
-		return false
-	
-	end
-
 	return true
 
 end
@@ -687,12 +648,6 @@ end
 function GM:PlayerCanPickupItem( ply, item )
 
 	if ( ply:Team() != TEAM_ALIVE ) then
-	
-		return false
-	
-	end
-
-	if ( hl2c_server_ammo_limit:GetBool() && AMMO_ITEMS[ item:GetClass() ] && AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] && ( ply:GetAmmoCount( AMMO_ITEMS[ item:GetClass() ] ) >= AMMO_MAX_VALUES[ AMMO_ITEMS[ item:GetClass() ] ] ) ) then
 	
 		return false
 	
@@ -945,19 +900,14 @@ function GM:PlayerSpawn( ply )
 	ply:SetTeam( TEAM_ALIVE )
 
 	-- Player vars
-	ply.energy = 100
 	ply.givenWeapons = {}
-	ply.healthRemoved = 0
-	ply.nextEnergyCycle = 0
-	ply.nextSetHealth = 0
-	ply:SetNWBool( "sprintDisabled", false )
 	ply.vulnerable = false
 	timer.Simple( VULNERABLE_TIME, function() if IsValid( ply ) then ply.vulnerable = true; end end )
 
 	-- Player statistics
 	ply:UnSpectate()
 	ply:ShouldDropWeapon( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING )
-	ply:AllowFlashlight( true )
+	ply:AllowFlashlight( GetConVar( "mp_flashlight" ):GetBool() )
 	ply:SetCrouchedWalkSpeed( 0.3 )
 	hook.Call( "SetPlayerSpeed", GAMEMODE, ply, 190, 320 )
 	hook.Call( "PlayerSetModel", GAMEMODE, ply )
@@ -1016,7 +966,7 @@ function GM:PlayerSwitchFlashlight( ply, on )
 	
 	end
 
-	return ( ply:CanUseFlashlight() && ply:IsSuitEquipped() && ( !flashlightDrainsAUX || !ply:GetNWBool( "sprintDisabled", false ) ) )
+	return ( ply:CanUseFlashlight() && ply:IsSuitEquipped() )
 
 end
 
@@ -1242,7 +1192,7 @@ function GM:Think()
 		game.ConsoleCommand( "skill "..math.floor( difficulty ).."\n" )
 	
 		-- Do not update all the time
-		updateDifficulty = CurTime() + 5
+		updateDifficulty = CurTime() + 1
 	
 	end
 
