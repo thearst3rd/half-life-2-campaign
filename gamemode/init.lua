@@ -624,6 +624,7 @@ end
 
 
 -- Called when a player tries to pickup a weapon
+local gmod_maxammo = GetConVar( "gmod_maxammo" )
 function GM:PlayerCanPickupWeapon( ply, wep )
 
 	if ( ( ply:Team() != TEAM_ALIVE ) || ( ( wep:GetClass() == "weapon_physgun" ) && !ply:IsAdmin() ) ) then
@@ -636,6 +637,21 @@ function GM:PlayerCanPickupWeapon( ply, wep )
 	if ( ( wep:GetPrimaryAmmoType() <= 0 ) && ply:HasWeapon( wep:GetClass() ) ) then
 	
 		return false
+	
+	end
+
+	-- Garry's Mod doesn't seem to handle this itself so yeah
+	if ( !gmod_maxammo:GetBool() ) then
+	
+		if ( ( wep:GetPrimaryAmmoType() > 0 ) && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= game.GetAmmoMax( wep:GetPrimaryAmmoType() ) ) ) then
+		
+			return false
+		
+		elseif ( ( wep:GetSecondaryAmmoType() > 0 ) && ( ply:GetAmmoCount( wep:GetSecondaryAmmoType() ) >= game.GetAmmoMax( wep:GetSecondaryAmmoType() ) ) ) then
+		
+			return false
+		
+		end
 	
 	end
 
