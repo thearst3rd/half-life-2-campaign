@@ -115,3 +115,9 @@ PLAYER_MODELS = {
 
 -- Number of seconds before a player is vulnerable after they spawn (Default: 10)
 VULNERABLE_TIME = 10
+
+
+-- Only administrators can hold these weapons (Default: weapon_physgun)
+ADMINISTRATOR_WEAPONS = {
+	[ "weapon_physgun" ] = true
+}

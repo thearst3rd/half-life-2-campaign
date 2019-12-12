@@ -627,7 +627,7 @@ end
 local gmod_maxammo = GetConVar( "gmod_maxammo" )
 function GM:PlayerCanPickupWeapon( ply, wep )
 
-	if ( ( ply:Team() != TEAM_ALIVE ) || ( ( wep:GetClass() == "weapon_physgun" ) && !ply:IsAdmin() ) ) then
+	if ( ( ply:Team() != TEAM_ALIVE ) || ( ADMINISTRATOR_WEAPONS[ wep:GetClass() ] && !ply:IsAdmin() ) ) then
 	
 		return false
 	
@@ -643,13 +643,21 @@ function GM:PlayerCanPickupWeapon( ply, wep )
 	-- Garry's Mod doesn't seem to handle this itself so yeah
 	if ( !gmod_maxammo:GetBool() ) then
 	
-		if ( ( wep:GetPrimaryAmmoType() > 0 ) && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= game.GetAmmoMax( wep:GetPrimaryAmmoType() ) ) ) then
+		if ( wep:GetPrimaryAmmoType() > 0 ) then
 		
-			return false
+			if ( ply:HasWeapon( wep:GetClass() ) && ( ply:GetAmmoCount( wep:GetPrimaryAmmoType() ) >= game.GetAmmoMax( wep:GetPrimaryAmmoType() ) ) ) then
+			
+				return false
+			
+			end
 		
-		elseif ( ( wep:GetSecondaryAmmoType() > 0 ) && ( ply:GetAmmoCount( wep:GetSecondaryAmmoType() ) >= game.GetAmmoMax( wep:GetSecondaryAmmoType() ) ) ) then
+		elseif ( wep:GetSecondaryAmmoType() > 0 ) then
 		
-			return false
+			if ( ply:HasWeapon( wep:GetClass() ) && ( ply:GetAmmoCount( wep:GetSecondaryAmmoType() ) >= game.GetAmmoMax( wep:GetSecondaryAmmoType() ) ) ) then
+			
+				return false
+			
+			end
 		
 		end
 	
@@ -976,13 +984,21 @@ end
 -- Called when a player uses their flashlight
 function GM:PlayerSwitchFlashlight( ply, on )
 
-	if ( ply:Team() != TEAM_ALIVE ) then
+	-- Dead players cannot use it
+	if ( ( ply:Team() != TEAM_ALIVE ) && on ) then
 	
 		return false
 	
 	end
 
-	return ( ply:CanUseFlashlight() && ply:IsSuitEquipped() )
+	-- Handle flashlight with AUX
+	if ( ( ply:GetSuitPower() < 10 ) && on ) then
+	
+		return false
+	
+	end
+
+	return ( ply:IsSuitEquipped() && ply:CanUseFlashlight() )
 
 end
 
@@ -1045,7 +1061,23 @@ function GM:ScaleNPCDamage( npc, hitGroup, dmgInfo )
 	-- Where are we hitting?
 	if ( hitGroup == HITGROUP_HEAD ) then
 	
-		hitGroupScale = 2
+		hitGroupScale = GetConVarNumber( "sk_npc_head" )
+	
+	elseif ( hitGroup == HITGROUP_CHEST ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_npc_chest" )
+	
+	elseif ( hitGroup == HITGROUP_STOMACH ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_npc_stomach" )
+	
+	elseif ( ( hitGroup == HITGROUP_LEFTARM ) || ( hitGroup == HITGROUP_RIGHTARM ) ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_npc_arm" )
+	
+	elseif ( ( hitGroup == HITGROUP_LEFTLEG ) || ( hitGroup == HITGROUP_RIGHTLEG ) ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_npc_leg" )
 	
 	else
 	
@@ -1065,7 +1097,23 @@ function GM:ScalePlayerDamage( ply, hitGroup, dmgInfo )
 	-- Where are we hitting?
 	if ( hitGroup == HITGROUP_HEAD ) then
 	
-		hitGroupScale = 2
+		hitGroupScale = GetConVarNumber( "sk_player_head" )
+	
+	elseif ( hitGroup == HITGROUP_CHEST ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_player_chest" )
+	
+	elseif ( hitGroup == HITGROUP_STOMACH ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_player_stomach" )
+	
+	elseif ( ( hitGroup == HITGROUP_LEFTARM ) || ( hitGroup == HITGROUP_RIGHTARM ) ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_player_arm" )
+	
+	elseif ( ( hitGroup == HITGROUP_LEFTLEG ) || ( hitGroup == HITGROUP_RIGHTLEG ) ) then
+	
+		hitGroupScale = GetConVarNumber( "sk_player_leg" )
 	
 	else
 	
