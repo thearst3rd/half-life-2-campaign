@@ -9,7 +9,7 @@ Half-Life 2 Campaign is a gamemode for Garry's Mod. The gamemode allows you to p
 * `gm_showspare2` (F4) - remove your vehicle.</br>
 * `hl2c_admin_physgun [ 0 ... 1 ]` - server admins are given a physgun.</br>
 * `hl2c_admin_noclip [ 0 ... 1 ]` - server admins are given rights to use no clip.</br>
-* `hl2c_server_ammo_limit [ 0 ... 1 ]` - server will limit HL2 ammo types.</br>
+* `hl2c_server_force_gamerules [ 0 ... 1 ]` - server forces HL2-style gamerules (AUX & Ammo).</br>
 * `hl2c_server_custom_playermodels [ 0 ... 1 ]` - server will allow custom playermodels.</br>
 * `hl2c_server_checkpoint_respawn [ 0 ... 1 ]` - server will respawn players at checkpoints.</br>
 * `hl2c_server_dynamic_skill_level [ 0 ... 1 ]` - server will dynamically change skill during gameplay.</br>
@@ -19,9 +19,8 @@ Half-Life 2 Campaign is a gamemode for Garry's Mod. The gamemode allows you to p
 
 ## FAQs
 * _Are there Sandbox features?_ - no and I don't plan to add them.
-* _Where are the maps?_ - this is a gamemode, not a content pack. I will not include the maps from HL2 as it's illegal.
 * _I host a dedicated server!_ - type `gamemode half-life_2_campaign` in the console.
-* _Does it come with Half-Life 2 maps?_ - no.
+* _Does it come with Half-Life 2 maps?_ - this is a gamemode, not a content pack. I will not include the maps from HL2 as it's illegal.
 * _Can I play the Episodes?_ - there is no support for the Episodes yet.
 * _Can I get rid of the HL2 crosshair?_ - yes! Just type `hud_draw_fixed_reticle 0` in the console.
 
