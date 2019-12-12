@@ -90,11 +90,11 @@ function GM:HUDPaint()
 		local nextMapCountdownLeft = math.Round( nextMapCountdownStart + NEXT_MAP_TIME - CurTime() )
 		if ( nextMapCountdownLeft > 0 ) then
 		
-			draw.SimpleTextOutlined( "Next Map in "..tostring( nextMapCountdownLeft ), "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
+			draw.SimpleTextOutlined( "Next Map in "..tostring( nextMapCountdownLeft ), "roboto32BlackItalic", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 255 ) )
 		
 		else
 		
-			draw.SimpleTextOutlined( "Switching Maps!", "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
+			draw.SimpleTextOutlined( "Switching Maps!", "roboto32BlackItalic", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 255 ) )
 		
 		end
 	
@@ -106,11 +106,11 @@ function GM:HUDPaint()
 		local restartMapCountdownLeft = math.Round( restartMapCountdownStart + RESTART_MAP_TIME - CurTime() )
 		if ( restartMapCountdownLeft > 0 ) then
 		
-			draw.SimpleTextOutlined( "Restarting Map in "..tostring( restartMapCountdownLeft ), "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
+			draw.SimpleTextOutlined( "Restarting Map in "..tostring( restartMapCountdownLeft ), "roboto32BlackItalic", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 255 ) )
 		
 		else
 		
-			draw.SimpleTextOutlined( "Restarting Map!", "orbitron32Bold", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
+			draw.SimpleTextOutlined( "Restarting Map!", "roboto32BlackItalic", centerX, h - h * 0.075, Color( 255, 255, 255, 200 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color( 0, 0, 0, 255 ) )
 		
 		end
 	
@@ -159,7 +159,7 @@ function GM:Initialize()
 	-- Fonts we will need later
 	surface.CreateFont( "roboto16", { size = 16, weight = 400, antialias = true, additive = false, font = "Roboto" } )
 	surface.CreateFont( "roboto16Bold", { size = 16, weight = 700, antialias = true, additive = false, font = "Roboto Bold" } )
-	surface.CreateFont( "orbitron32Bold", { size = 32, weight = 400, antialias = true, additive = false, font = "orbitronbold" } )
+	surface.CreateFont( "roboto32BlackItalic", { size = 32, weight = 900, antialias = true, additive = false, font = "Roboto Black Italic" } )
 
 	-- Language
 	language.Add( "worldspawn", "World" )

@@ -33,10 +33,10 @@ GODLIKE_NPCS = {
 function GM:CreateTeams()
 
 	TEAM_ALIVE = 1
-	team.SetUp( TEAM_ALIVE, "ALIVE", Color( 81, 124, 199, 255 ) )
+	team.SetUp( TEAM_ALIVE, "ALIVE", Color( 192, 192, 192, 255 ) )
 	
 	TEAM_COMPLETED_MAP = 2
-	team.SetUp( TEAM_COMPLETED_MAP, "FINISHED", Color( 81, 124, 199, 255 ) )
+	team.SetUp( TEAM_COMPLETED_MAP, "COMPLETED MAP", Color( 255, 215, 0, 255 ) )
 	
 	TEAM_DEAD = 3
 	team.SetUp( TEAM_DEAD, "DEAD", Color( 128, 128, 128, 255 ) )

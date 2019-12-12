@@ -1,28 +1,28 @@
-# Half-Life 2 Campaign for Garry's Mod
-Play the original Half-Life 2 campaign in co-op mode with your friends online.
+# Half-Life 2 Campaign
+## Description
+Half-Life 2 Campaign is a gamemode for Garry's Mod. The gamemode allows you to play Half-Life 2 in Garry's Mod without being given all the weapons and Sandbox equipment. Oh... and you can play with friends too!
 
-## Console Commands
-- `hl2c_admin_noclip [0, 1]` - If set to 1 admins will be allowed to noclip.
-- `hl2c_admin_physgun [0, 1]` - If set to 1 admins will get the physgun when they spawn.
-- `hl2c_next_map` - Goes to the next map.
-- `hl2c_restart_map` - Restarts the map.
+## Help
+* `gm_showhelp` (F1) - open the help menu.</br>
+* `gm_showteam` (F2) - show navigation marker.</br>
+* `gm_showspare1` (F3) - spawn a vehicle.</br>
+* `gm_showspare2` (F4) - remove your vehicle.</br>
+* `hl2c_admin_physgun [ 0 ... 1 ]` - server admins are given a physgun.</br>
+* `hl2c_admin_noclip [ 0 ... 1 ]` - server admins are given rights to use no clip.</br>
+* `hl2c_server_force_gamerules [ 0 ... 1 ]` - server forces HL2-style gamerules (AUX & Ammo).</br>
+* `hl2c_server_custom_playermodels [ 0 ... 1 ]` - server will allow custom playermodels.</br>
+* `hl2c_server_checkpoint_respawn [ 0 ... 1 ]` - server will respawn players at checkpoints.</br>
+* `hl2c_server_dynamic_skill_level [ 0 ... 1 ]` - server will dynamically change skill during gameplay.</br>
+* `hl2c_server_lag_compensation [ 0 ... 1 ]` - server will lag compensate NPCs.</br>
+* `hl2c_server_player_respawning [ 0 ... 1 ]` - server will always respawn players.</br>
+* `hl2c_server_jeep_passenger_seat [ 0 ... 1 ]` - server will spawn jeeps with an extra seat.</br>
 
-## FAQ
+## FAQs
+* _Are there Sandbox features?_ - no and I don't plan to add them.
+* _I host a dedicated server!_ - type `gamemode half-life_2_campaign` in the console.
+* _Does it come with Half-Life 2 maps?_ - this is a gamemode, not a content pack. I will not include the maps from HL2 as it's illegal.
+* _Can I play the Episodes?_ - there is no support for the Episodes yet.
+* _Can I get rid of the HL2 crosshair?_ - yes! Just type `hud_draw_fixed_reticle 0` in the console.
 
-**Can you add [some feature from Sandbox]?**
-No. This isn't sandbox, it's HL2.
-
-**Do the citadel levels work in HL2?**
-For the most part, yes.
-
-**Does this work with Episode 1 and 2?**
-Sort of (see question below).
-
-**The episodic games are horribly broken! Why?**
-Most, if not all, of the problems with Episode 1 and 2 Garry has to fix.
-
-**Will you be adding a Lua version of the super gravity gun?**
-No.
-
-**Will you add a spectator mode to players that have completed the level?**
-No.
+## Credits
+* **AMT** - original creator of the gamemode.
