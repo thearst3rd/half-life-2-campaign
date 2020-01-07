@@ -79,5 +79,23 @@
 			"type"		"CheckBox"
 			"default"	"0"
 		}
+	
+		10
+		{
+			"name"		"hl2c_server_jump_boost"
+			"text"		"Simulate Half-Life 2's jump speed boost"
+			"type"		"CheckBox"
+			"default"	"1"
+			"singleplayer"	"1"
+		}
+	
+		11
+		{
+			"name"		"hl2c_server_jump_accel"
+			"text"		"Simulate Half-Life 2's accelerated hopping (jump speed boost MUST also be enabled)"
+			"type"		"CheckBox"
+			"default"	"1"
+			"singleplayer"	"1"
+		}
 	}
 }

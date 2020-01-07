@@ -29,6 +29,8 @@ CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIV
 CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
 CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
 CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_jump_boost", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED } )
+CreateConVar( "hl2c_server_jump_accel", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED } )
 
 
 -- Called by ShowScoreboard

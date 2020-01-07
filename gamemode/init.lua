@@ -9,6 +9,7 @@ AddCSLuaFile( "cl_viewmodel.lua" )
 AddCSLuaFile( "sh_config.lua" )
 AddCSLuaFile( "sh_init.lua" )
 AddCSLuaFile( "sh_player.lua" )
+AddCSLuaFile( "player_class/player_hl2c.lua" )
 
 -- Include the required lua files
 include( "sv_globalstates.lua" )
@@ -45,6 +46,8 @@ local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill
 local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
 local hl2c_server_player_respawning = CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
 local hl2c_server_jeep_passenger_seat = CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_jump_boost = CreateConVar( "hl2c_server_jump_boost", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED } )
+local hl2c_server_jump_accel = CreateConVar( "hl2c_server_jump_accel", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED } )
 
 
 -- Precache all the player models ahead of time
@@ -908,7 +911,7 @@ end
 -- Called when a player spawns 
 function GM:PlayerSpawn( ply )
 
-	player_manager.SetPlayerClass( ply, "player_default" )
+	player_manager.SetPlayerClass( ply, "player_hl2c" )
 
 	if ( ( ( !hl2c_server_player_respawning:GetBool() && !FORCE_PLAYER_RESPAWNING ) || OVERRIDE_PLAYER_RESPAWNING ) && ( ply:Team() == TEAM_DEAD ) ) then
 	

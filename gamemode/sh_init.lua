@@ -1,6 +1,7 @@
 -- Include the required lua files
 include( "sh_config.lua" )
 include( "sh_player.lua" )
+include( "player_class/player_hl2c.lua" )
 
 
 -- General gamemode information
