@@ -36,15 +36,15 @@ end
 
 
 -- Create console variables to make these config vars easier to access
-local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, FCVAR_NOTIFY )
-local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, FCVAR_NOTIFY )
-local hl2c_server_force_gamerules = CreateConVar( "hl2c_server_force_gamerules", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_custom_playermodels = CreateConVar( "hl2c_server_custom_playermodels", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_player_respawning = CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
-local hl2c_server_jeep_passenger_seat = CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE } )
+local hl2c_admin_physgun = CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, { FCVAR_NOTIFY, FCVAR_REPLICATE } )
+local hl2c_admin_noclip = CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, { FCVAR_NOTIFY, FCVAR_REPLICATE } )
+local hl2c_server_force_gamerules = CreateConVar( "hl2c_server_force_gamerules", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_custom_playermodels = CreateConVar( "hl2c_server_custom_playermodels", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_checkpoint_respawn = CreateConVar( "hl2c_server_checkpoint_respawn", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_dynamic_skill_level = CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_lag_compensation = CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_player_respawning = CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+local hl2c_server_jeep_passenger_seat = CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
 
 
 -- Precache all the player models ahead of time

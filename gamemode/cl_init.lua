@@ -19,6 +19,17 @@ if ( !file.IsDir( "half-life_2_campaign/client", "DATA" ) ) then
 
 end
 
+-- Create client-side copies of console variables
+CreateConVar( "hl2c_admin_physgun", ADMIN_NOCLIP, { FCVAR_NOTIFY, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_admin_noclip", ADMIN_PHYSGUN, { FCVAR_NOTIFY, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_force_gamerules", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_custom_playermodels", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_checkpoint_respawn", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_dynamic_skill_level", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_lag_compensation", 1, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_player_respawning", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+CreateConVar( "hl2c_server_jeep_passenger_seat", 0, { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATE } )
+
 
 -- Called by ShowScoreboard
 function GM:CreateScoreboard()
