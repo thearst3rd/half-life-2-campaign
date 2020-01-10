@@ -16,6 +16,8 @@ Half-Life 2 Campaign is a gamemode for Garry's Mod. The gamemode allows you to p
 * `hl2c_server_lag_compensation [ 0 ... 1 ]` - server will lag compensate NPCs.</br>
 * `hl2c_server_player_respawning [ 0 ... 1 ]` - server will always respawn players.</br>
 * `hl2c_server_jeep_passenger_seat [ 0 ... 1 ]` - server will spawn jeeps with an extra seat.</br>
+* `hl2c_server_jump_boost [ 0 ... 1 ]` - server will simulate Half-Life 2's jump speed boost.</br>
+* `hl2c_server_jump_accel [ 0 ... 1 ]` - server will simulate Half-Life 2's accelerated hopping. Jump boost MUST also be enabled</br>
 
 ## FAQs
 * _Are there Sandbox features?_ - no and I don't plan to add them.
